@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { LeadsPage } from './pages/LeadsPage'
 import { LeadDetailPage } from './pages/LeadDetailPage'
 import { AutomationPage } from './pages/AutomationPage'
+import { DashboardGuard } from './components/DashboardGuard'
 
 export default function App() {
   return (
@@ -16,11 +17,13 @@ export default function App() {
       <Route path="/request" element={<RequestPage />} />
       <Route path="/request/success" element={<SuccessPage />} />
       <Route path="/demo" element={<DemoAccessPage />} />
-      <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index element={<DashboardPage />} />
-        <Route path="leads" element={<LeadsPage />} />
-        <Route path="leads/:id" element={<LeadDetailPage />} />
-        <Route path="automation" element={<AutomationPage />} />
+      <Route element={<DashboardGuard />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="leads" element={<LeadsPage />} />
+          <Route path="leads/:id" element={<LeadDetailPage />} />
+          <Route path="automation" element={<AutomationPage />} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

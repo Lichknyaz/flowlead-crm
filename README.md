@@ -7,8 +7,9 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 - A public service website can feed real form data into an operational dashboard.
 - The team can search and filter leads, change status and priority, assign work, and save internal notes.
 - Dashboard metrics react to the current lead data.
-- Notification, follow-up, and AI-summary concepts are shown without pretending that external services are connected.
-- Demo state persists in the browser with `localStorage` and can later be replaced by an API.
+- The same build supports a zero-configuration local demo and an optional production data layer.
+- Supabase adds PostgreSQL persistence, protected staff access, row-level security, and a safe public request endpoint.
+- An optional Edge Function can deliver new-lead notifications to Telegram.
 
 ## Main routes
 
@@ -23,7 +24,7 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 
 ## Stack
 
-React 19, TypeScript, Vite, React Router, Zod, and Lucide icons. Styling is custom CSS with responsive layouts; no UI kit is used.
+React 19, TypeScript, Vite, React Router, Zod, Lucide icons, and optional Supabase. Styling is custom CSS with responsive layouts; no UI kit is used.
 
 ## Run locally
 
@@ -35,8 +36,12 @@ npm run dev
 Build verification:
 
 ```bash
+npm run format:check
+npm run lint
 npm run build
 ```
+
+GitHub Actions runs all three checks for pushes and pull requests.
 
 ## Code formatting
 
@@ -47,10 +52,52 @@ npm run format
 npm run format:check
 ```
 
+## Data modes
+
+With no environment variables, FlowLead starts in local demo mode. Demo data and edits stay in the browser's `localStorage`; no account or external service is needed.
+
+When both Supabase variables are present, FlowLead starts in live mode. Public requests are written through a restricted database function, while the dashboard requires a Supabase email/password account.
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+VITE_ENABLE_NOTIFICATIONS=false
+```
+
+Never expose a Supabase service-role key in a `VITE_` variable or commit it to Git.
+
+## Supabase setup
+
+1. Create a Supabase project.
+2. Open the SQL Editor and run `supabase/migrations/202607220001_initial_schema.sql`.
+3. In Authentication → Users, create the workspace owner email/password account.
+4. Copy the project URL and publishable key into `.env.local` and the matching Vercel environment variables.
+
+The migration creates the leads table, validation constraints, seed data, status history triggers, row-level security policies, and the public `submit_lead` function. Anonymous visitors can submit requests but cannot read CRM data.
+
+### Optional Telegram notifications
+
+Deploy `supabase/functions/notify-new-lead`, then add these function secrets in Supabase:
+
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+
+Finally set `VITE_ENABLE_NOTIFICATIONS=true`. Leave it false until the function and secrets are ready.
+
+## Deploy to Vercel
+
+Import `Lichknyaz/flowlead-crm` in Vercel and keep the detected Vite defaults. `vercel.json` provides the single-page-app route fallback and basic security headers.
+
+The site can be deployed immediately as a local demo. Add the two Supabase variables in Vercel when the database is ready; no code change is required.
+
 ## Data and privacy
 
-All people, contact information, businesses, testimonials, and events in this repository are fictional. Submitted requests remain in the current browser only. No emails or notifications are actually sent.
+All seeded people, contact information, businesses, testimonials, and events in this repository are fictional. In local mode, submitted requests remain in the current browser. In live mode, the project owner is responsible for the Supabase region, retention policy, access accounts, and privacy notice used for real submissions.
 
-## Planned full-stack extension
+## Remaining production upgrades
 
-Replace the local context service with API routes, PostgreSQL, and Prisma; add authenticated team roles; connect an n8n or Make.com webhook; and optionally generate summaries through the OpenAI API.
+For use beyond a portfolio demo, add role-based permissions for multiple staff members, bot protection and rate limiting on the public form, transactional email, monitoring/error reporting, backups, and a real privacy policy. The current schema intentionally provides one authenticated workspace role to keep setup small and auditable.

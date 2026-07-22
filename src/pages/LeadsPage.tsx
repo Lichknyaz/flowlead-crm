@@ -2,7 +2,7 @@ import { Download, Filter, Plus, Search, SlidersHorizontal } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
-import { useLeads } from '../context/LeadContext'
+import { useLeads } from '../context/LeadDataContext'
 import { leadStatuses, type LeadStatus } from '../types/lead'
 
 export function LeadsPage() {

@@ -1,8 +1,33 @@
 import { ArrowRight, BarChart3, Bot, Check, LockKeyhole, Users } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from '../components/Brand'
+import { useAuth } from '../context/AuthContext'
 
 export function DemoAccessPage() {
+  const { isLiveMode, signIn } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
+    try {
+      await signIn(email, password)
+      const requestedPath = (location.state as { from?: string } | null)?.from
+      navigate(requestedPath ?? '/dashboard', { replace: true })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to sign in')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="demo-access">
       <header>
@@ -53,8 +78,12 @@ export function DemoAccessPage() {
           <span className="access-lock">
             <LockKeyhole />
           </span>
-          <h2>Explore the workspace</h2>
-          <p>No account needed. Use a pre-filled demo with realistic service requests.</p>
+          <h2>{isLiveMode ? 'Sign in to the workspace' : 'Explore the workspace'}</h2>
+          <p>
+            {isLiveMode
+              ? 'Use the workspace owner account created in Supabase.'
+              : 'No account needed. Use a pre-filled demo with realistic service requests.'}
+          </p>
           <div className="demo-user">
             <span className="avatar">OM</span>
             <span>
@@ -62,10 +91,47 @@ export function DemoAccessPage() {
               <strong>Workspace Owner</strong>
             </span>
           </div>
-          <Link className="button button-primary button-wide" to="/dashboard">
-            Open CRM demo <ArrowRight size={18} />
-          </Link>
-          <small>Your changes are saved locally and can be reset anytime.</small>
+          {isLiveMode ? (
+            <form className="access-form" onSubmit={submit}>
+              <label>
+                Email
+                <input
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Password
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </label>
+              {error && <p className="access-error">{error}</p>}
+              <button
+                className="button button-primary button-wide"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Signing in…' : 'Open CRM'} <ArrowRight size={18} />
+              </button>
+            </form>
+          ) : (
+            <Link className="button button-primary button-wide" to="/dashboard">
+              Open CRM demo <ArrowRight size={18} />
+            </Link>
+          )}
+          <small>
+            {isLiveMode
+              ? 'Workspace access is protected by Supabase Auth.'
+              : 'Your changes are saved locally and can be reset anytime.'}
+          </small>
         </section>
       </main>
       <footer>FlowLead CRM · Built as an interactive portfolio project</footer>

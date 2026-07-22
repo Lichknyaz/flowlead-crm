@@ -12,7 +12,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { PublicHeader } from '../components/PublicHeader'
-import { useLeads } from '../context/LeadContext'
+import { useLeads } from '../context/LeadDataContext'
 import type { LeadFormData, Urgency } from '../types/lead'
 
 const schema = z
@@ -47,12 +47,15 @@ const initial: LeadFormData = {
 export function RequestPage() {
   const [form, setForm] = useState<LeadFormData>(initial)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { addLead } = useLeads()
   const navigate = useNavigate()
   const update = (key: keyof LeadFormData, value: string) =>
     setForm((current) => ({ ...current, [key]: value }))
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError('')
     const result = schema.safeParse(form)
     if (!result.success) {
       const next: Record<string, string> = {}
@@ -62,8 +65,15 @@ export function RequestPage() {
       setErrors(next)
       return
     }
-    const lead = addLead(result.data)
-    navigate('/request/success', { state: { id: lead.id, name: lead.clientName } })
+    setIsSubmitting(true)
+    try {
+      const lead = await addLead(result.data)
+      navigate('/request/success', { state: { id: lead.id, name: lead.clientName } })
+    } catch (cause) {
+      setSubmitError(cause instanceof Error ? cause.message : 'Please try again in a moment.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   return (
     <div className="public-page request-page">
@@ -230,8 +240,17 @@ export function RequestPage() {
                 {errors.message && <em>{errors.message}</em>}
               </label>
             </div>
-            <button className="button button-primary button-submit" type="submit">
-              Send my request <span>→</span>
+            {submitError && (
+              <p className="form-submit-error" role="alert">
+                {submitError}
+              </p>
+            )}
+            <button
+              className="button button-primary button-submit"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Sending request…' : 'Send my request'} <span>→</span>
             </button>
             <p className="privacy-note">
               <ShieldCheck size={16} /> Your details are used only to handle this service request.

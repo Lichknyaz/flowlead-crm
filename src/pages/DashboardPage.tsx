@@ -14,7 +14,7 @@ import {
 import { Link } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
 import { MetricCard } from '../components/MetricCard'
-import { useLeads } from '../context/LeadContext'
+import { useLeads } from '../context/LeadDataContext'
 
 export function DashboardPage() {
   const { leads } = useLeads()

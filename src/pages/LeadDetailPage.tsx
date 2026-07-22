@@ -6,7 +6,6 @@ import {
   Clock3,
   Mail,
   MapPin,
-  MessageSquareText,
   Phone,
   Save,
   Sparkles,
@@ -16,12 +15,12 @@ import {
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StatusBadge, UrgencyBadge } from '../components/StatusBadge'
-import { useLeads } from '../context/LeadContext'
+import { useLeads } from '../context/LeadDataContext'
 import { leadStatuses, type LeadStatus, type Urgency } from '../types/lead'
 
 export function LeadDetailPage() {
   const { id } = useParams()
-  const { leads, updateLead } = useLeads()
+  const { leads, updateLead, error } = useLeads()
   const lead = leads.find((item) => item.id === id)
   const [note, setNote] = useState(lead?.notes ?? '')
   const [saved, setSaved] = useState(false)
@@ -34,13 +33,22 @@ export function LeadDetailPage() {
         <Link to="/dashboard/leads">Return to leads</Link>
       </div>
     )
-  const saveNote = () => {
-    updateLead(lead.id, { notes: note })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1800)
+  const saveNote = async () => {
+    try {
+      await updateLead(lead.id, { notes: note })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1800)
+    } catch {
+      setSaved(false)
+    }
   }
   return (
     <>
+      {error && (
+        <p className="form-submit-error" role="alert">
+          {error}
+        </p>
+      )}
       <div className="detail-top">
         <Link to="/dashboard/leads">
           <ArrowLeft /> Back to leads
@@ -83,7 +91,11 @@ export function LeadDetailPage() {
             Status
             <select
               value={lead.status}
-              onChange={(e) => updateLead(lead.id, { status: e.target.value as LeadStatus })}
+              onChange={(e) =>
+                void updateLead(lead.id, { status: e.target.value as LeadStatus }).catch(
+                  () => undefined,
+                )
+              }
             >
               {leadStatuses.map((item) => (
                 <option key={item}>{item}</option>
@@ -94,7 +106,9 @@ export function LeadDetailPage() {
             Assigned to
             <select
               value={lead.assignedUser}
-              onChange={(e) => updateLead(lead.id, { assignedUser: e.target.value })}
+              onChange={(e) =>
+                void updateLead(lead.id, { assignedUser: e.target.value }).catch(() => undefined)
+              }
             >
               <option>Unassigned</option>
               <option>Jakub M.</option>
@@ -126,7 +140,11 @@ export function LeadDetailPage() {
                   <select
                     className="inline-select"
                     value={lead.urgency}
-                    onChange={(e) => updateLead(lead.id, { urgency: e.target.value as Urgency })}
+                    onChange={(e) =>
+                      void updateLead(lead.id, { urgency: e.target.value as Urgency }).catch(
+                        () => undefined,
+                      )
+                    }
                   >
                     <option>Standard</option>
                     <option>Soon</option>
@@ -165,7 +183,10 @@ export function LeadDetailPage() {
             />
             <div>
               <small>{note.length} characters</small>
-              <button className="button button-primary button-small" onClick={saveNote}>
+              <button
+                className="button button-primary button-small"
+                onClick={() => void saveNote()}
+              >
                 {saved ? (
                   <>
                     <Check /> Saved

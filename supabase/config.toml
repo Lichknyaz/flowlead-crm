@@ -1,0 +1,4 @@
+project_id = "flowlead-crm"
+
+[functions.notify-new-lead]
+verify_jwt = true
