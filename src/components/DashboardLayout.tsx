@@ -16,7 +16,8 @@ import {
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Brand } from './Brand'
-import { useLeads } from '../context/LeadContext'
+import { useLeads } from '../context/LeadDataContext'
+import { useAuth } from '../context/AuthContext'
 
 const titles: Record<string, [string, string]> = {
   '/dashboard': ['Dashboard', 'A live overview of your service requests'],
@@ -26,7 +27,8 @@ const titles: Record<string, [string, string]> = {
 
 export function DashboardLayout() {
   const [open, setOpen] = useState(false)
-  const { leads, resetDemo } = useLeads()
+  const { leads, resetDemo, dataMode } = useLeads()
+  const { user, signOut } = useAuth()
   const location = useLocation()
   const title = location.pathname.startsWith('/dashboard/leads/')
     ? ['Lead details', 'Request history and next actions']
@@ -70,23 +72,33 @@ export function DashboardLayout() {
           </span>
         </nav>
         <div className="sidebar-bottom">
-          <div className="demo-mode">
+          <div className={`demo-mode ${dataMode === 'supabase' ? 'live-mode' : ''}`}>
             <span>
               <i />
-              Demo workspace
+              {dataMode === 'supabase' ? 'Live workspace' : 'Demo workspace'}
             </span>
-            <small>Changes save in this browser</small>
-            <button onClick={resetDemo}>
-              <RotateCcw size={11} /> Reset demo data
-            </button>
+            <small>
+              {dataMode === 'supabase' ? 'Synced with Supabase' : 'Changes save in this browser'}
+            </small>
+            {dataMode === 'local' && (
+              <button onClick={resetDemo}>
+                <RotateCcw size={11} /> Reset demo data
+              </button>
+            )}
           </div>
-          <NavLink to="/">
-            <LogOut size={18} /> Exit to website
-          </NavLink>
+          {dataMode === 'supabase' ? (
+            <button className="sidebar-signout" onClick={() => void signOut()}>
+              <LogOut size={18} /> Sign out
+            </button>
+          ) : (
+            <NavLink to="/">
+              <LogOut size={18} /> Exit to website
+            </NavLink>
+          )}
           <div className="user-card">
             <span className="avatar">OM</span>
             <span>
-              <strong>Oleksandr M.</strong>
+              <strong>{user?.email?.split('@')[0] ?? 'Oleksandr M.'}</strong>
               <small>Workspace owner</small>
             </span>
             <ChevronDown size={16} />
@@ -113,7 +125,7 @@ export function DashboardLayout() {
             <button className="search-button">
               <Search size={18} />
               <span>Search anything...</span>
-              <kbd>⌘ K</kbd>
+              <kbd>Ctrl K</kbd>
             </button>
             <button className="icon-button">
               <Bell size={19} />
