@@ -1,0 +1,129 @@
+/* Landing visual alignment */
+.hero-visual {
+  background: radial-gradient(circle at 50% 48%, #dbeafe 0 34%, transparent 35%);
+}
+
+.house-scene {
+  inset: auto;
+  left: 50%;
+  top: 58px;
+  width: 400px;
+  height: 360px;
+  transform: translateX(-50%);
+}
+
+/* Keep each process number visually attached to its icon. */
+.process-steps article > span {
+  left: 62px;
+  right: auto;
+  top: 13px;
+}
+
+/* CRM readability */
+.dashboard-title h1 { font-size: 22px; }
+.dashboard-title p { font-size: 13px; }
+.search-button { font-size: 12px; }
+.demo-banner { font-size: 13px; }
+
+.workspace-pill small { font-size: 10px; }
+.workspace-pill strong { font-size: 13px; }
+.sidebar-nav > small { font-size: 10px; }
+.sidebar-nav > a,
+.disabled-link,
+.sidebar-bottom > a { font-size: 14px; }
+.nav-count { font-size: 11px; }
+.disabled-link em { font-size: 10px; }
+.demo-mode > span { font-size: 12px; }
+.demo-mode small,
+.demo-mode button { font-size: 10px; }
+.user-card strong { font-size: 12px; }
+.user-card small { font-size: 10px; }
+
+.metric-card > strong { font-size: 31px; }
+.metric-card > span { font-size: 12px; }
+.metric-card > small { font-size: 10px; }
+
+.panel > header h2 { font-size: 16px; }
+.panel > header p { font-size: 11px; }
+.panel > header > a,
+.panel > header > button { font-size: 12px; }
+
+.lead-table th { font-size: 10px; padding-block: 11px; }
+.lead-table td { font-size: 11px; padding-block: 12px; }
+.client-avatar { font-size: 10px; width: 32px; height: 32px; }
+.client-cell strong,
+.cell-primary { font-size: 12px; }
+.client-cell small { font-size: 10px; }
+.status,
+.urgency { font-size: 10px; }
+
+.pipeline-total strong { font-size: 28px; }
+.pipeline-total span { font-size: 11px; }
+.pipeline-bars span,
+.pipeline-bars strong { font-size: 11px; }
+
+.quick-actions strong { font-size: 12px; }
+.quick-actions small { font-size: 10px; }
+.response-gauge strong { font-size: 22px; }
+.response-gauge span,
+.response-stats small { font-size: 9px; }
+.response-stats strong { font-size: 12px; }
+.activity-panel strong { font-size: 11px; }
+.activity-panel small { font-size: 10px; }
+
+.tab-row button { font-size: 13px; }
+.tab-row span { font-size: 10px; }
+.filter-search input,
+.filter-select,
+.filter-button { font-size: 12px; }
+.filter-result { font-size: 11px; }
+
+.lead-identity h2 { font-size: 21px; }
+.lead-identity p { font-size: 11px; }
+.detail-controls label { font-size: 10px; }
+.detail-controls select { font-size: 12px; }
+.detail-fields small,
+.message-box small,
+.notes-section > div small,
+.contact-section small,
+.owner-card small { font-size: 10px; }
+.detail-fields strong,
+.contact-section strong,
+.owner-card strong { font-size: 12px; }
+.message-box p,
+.notes-section textarea { font-size: 13px; }
+.ai-label { font-size: 10px; }
+.ai-card h3 { font-size: 16px; }
+.ai-card > p,
+.generated-summary p { font-size: 12px; }
+.ai-card > button { font-size: 11px; }
+.timeline-card strong { font-size: 11px; }
+.timeline-card p { font-size: 10px; }
+.timeline-card small,
+.owner-card p { font-size: 9px; }
+
+.automation-hero p { font-size: 13px; }
+.automation-heading h2 { font-size: 18px; }
+.automation-heading p { font-size: 11px; }
+.workflow-card h3 { font-size: 15px; }
+.workflow-card > p { font-size: 11px; }
+.workflow-path small { font-size: 8px; }
+.workflow-path strong,
+.workflow-card footer span,
+.workflow-card footer small,
+.workflow-card footer button,
+.log-list small,
+.log-list time,
+.automation-note { font-size: 10px; }
+.log-list strong { font-size: 12px; }
+
+@media (max-width: 600px) {
+  .house-scene {
+    left: 50%;
+    top: 42px;
+  }
+
+  .process-steps article > span {
+    left: 62px;
+  }
+}
