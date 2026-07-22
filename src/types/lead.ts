@@ -1,4 +1,11 @@
-export const leadStatuses = ['new', 'contacted', 'booked', 'in progress', 'completed', 'lost'] as const
+export const leadStatuses = [
+  'new',
+  'contacted',
+  'booked',
+  'in progress',
+  'completed',
+  'lost',
+] as const
 export type LeadStatus = (typeof leadStatuses)[number]
 export type Urgency = 'Standard' | 'Soon' | 'Urgent'
 

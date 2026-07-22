@@ -38,6 +38,15 @@ Build verification:
 npm run build
 ```
 
+## Code formatting
+
+Prettier is configured for TypeScript, React, CSS, JSON, and Markdown files.
+
+```bash
+npm run format
+npm run format:check
+```
+
 ## Data and privacy
 
 All people, contact information, businesses, testimonials, and events in this repository are fictional. Submitted requests remain in the current browser only. No emails or notifications are actually sent.

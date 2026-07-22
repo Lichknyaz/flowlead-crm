@@ -13,7 +13,9 @@ import './visual-tuning.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <LeadProvider><App /></LeadProvider>
+      <LeadProvider>
+        <App />
+      </LeadProvider>
     </BrowserRouter>
   </StrictMode>,
 )

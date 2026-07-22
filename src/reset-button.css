@@ -1,1 +1,13 @@
-.demo-mode button{display:flex;align-items:center;gap:5px;background:none;border:0;color:#6b9e90;font-size:8px;padding:7px 0 0}.demo-mode button:hover{color:#a7f3d0}
+.demo-mode button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 0;
+  color: #6b9e90;
+  font-size: 8px;
+  padding: 7px 0 0;
+}
+.demo-mode button:hover {
+  color: #a7f3d0;
+}
