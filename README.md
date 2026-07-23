@@ -6,7 +6,9 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 
 - A public service website can feed real form data into an operational dashboard.
 - The team can search and filter leads, change status and priority, assign work, and save internal notes.
+- Leads can be managed in a table or a drag-and-drop Kanban pipeline.
 - Dashboard metrics react to the current lead data.
+- Realtime subscriptions keep lead changes and persistent in-app notifications synchronized.
 - The same build supports a zero-configuration local demo and an optional production data layer.
 - Supabase adds PostgreSQL persistence, protected staff access, row-level security, and a safe public request endpoint.
 - An optional Edge Function can deliver new-lead notifications to Telegram.
@@ -18,7 +20,7 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 - `/request/success` — confirmation and CRM handoff
 - `/demo` — portfolio demo access screen
 - `/dashboard` — CRM overview
-- `/dashboard/leads` — searchable lead table
+- `/dashboard/leads` — searchable lead table and Kanban pipeline
 - `/dashboard/leads/:id` — status, notes, assignment, timeline, and demo AI summary
 - `/dashboard/automation` — workflow concept and automation events
 
@@ -77,7 +79,7 @@ Never expose a Supabase service-role key in a `VITE_` variable or commit it to G
 3. In Authentication → Users, create the workspace owner email/password account.
 4. Copy the project URL and publishable key into `.env.local` and the matching Vercel environment variables.
 
-The migration creates the leads table, validation constraints, seed data, status history triggers, row-level security policies, and the public `submit_lead` function. Anonymous visitors can submit requests but cannot read CRM data.
+The migrations create the leads and notifications tables, validation constraints, seed data, status history and notification triggers, realtime publication, row-level security policies, and the public `submit_lead` function. Anonymous visitors can submit requests but cannot read CRM data.
 
 ### Optional Telegram notifications
 

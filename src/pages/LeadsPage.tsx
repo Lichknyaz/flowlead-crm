@@ -1,7 +1,18 @@
-import { Download, Filter, Plus, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
+import {
+  Columns3,
+  Download,
+  Filter,
+  List,
+  Plus,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
+import { LeadKanban } from '../components/LeadKanban'
 import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
 import { createLeadsCsvHref } from '../utils/leadExport'
@@ -19,6 +30,7 @@ export function LeadsPage() {
   const { openLeadModal } = useCrmUi()
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState('')
+  const [layout, setLayout] = useState<'list' | 'board'>('list')
   const [view, setView] = useState<LeadView>('all')
   const requestedStatus = searchParams.get('status')
   const [status, setStatus] = useState<'all' | LeadStatus>(
@@ -88,6 +100,22 @@ export function LeadsPage() {
           </button>
         </div>
         <div>
+          <div className="layout-toggle" aria-label="Lead layout">
+            <button
+              className={layout === 'list' ? 'active' : ''}
+              onClick={() => setLayout('list')}
+              aria-label="List view"
+            >
+              <List />
+            </button>
+            <button
+              className={layout === 'board' ? 'active' : ''}
+              onClick={() => setLayout('board')}
+              aria-label="Kanban view"
+            >
+              <Columns3 />
+            </button>
+          </div>
           <a
             className="button button-secondary button-small"
             href={filtered.length ? createLeadsCsvHref(filtered) : undefined}
@@ -184,7 +212,7 @@ export function LeadsPage() {
             </button>
           </div>
         )}
-        <LeadTable leads={filtered} />
+        {layout === 'list' ? <LeadTable leads={filtered} /> : <LeadKanban leads={filtered} />}
       </section>
     </>
   )
