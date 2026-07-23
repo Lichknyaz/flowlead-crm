@@ -23,6 +23,7 @@ const titles: Record<string, [string, string]> = {
   '/dashboard': ['Dashboard', 'A live overview of your service requests'],
   '/dashboard/leads': ['Leads', 'Track, filter and manage every request'],
   '/dashboard/automation': ['Automation', 'Keep routine follow-ups moving automatically'],
+  '/dashboard/reports': ['Reports', 'Understand pipeline health and team performance'],
 }
 
 export function DashboardLayout() {
@@ -68,9 +69,9 @@ export function DashboardLayout() {
             <Bot size={19} /> Automation
           </NavLink>
           <small>INSIGHTS</small>
-          <span className="disabled-link">
-            <BarChart3 size={19} /> Reports <em>Soon</em>
-          </span>
+          <NavLink to="/dashboard/reports" onClick={() => setOpen(false)}>
+            <BarChart3 size={19} /> Reports
+          </NavLink>
         </nav>
         <div className="sidebar-bottom">
           <div className={`demo-mode ${dataMode === 'supabase' ? 'live-mode' : ''}`}>
