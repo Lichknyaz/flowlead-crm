@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { mockLeads } from '../data/mockLeads'
-import { isSupabaseConfigured } from '../lib/supabase'
+import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { createRemoteLead, listRemoteLeads, updateRemoteLead } from '../services/leadRepository'
 import type { Lead, LeadFormData, LeadStatus } from '../types/lead'
 import { useAuth } from './AuthContext'
@@ -68,6 +68,25 @@ export function LeadProvider({ children }: { children: ReactNode }) {
     if (dataMode === 'supabase' && user) void refreshLeads()
     if (dataMode === 'supabase' && !user) setLeads([])
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataMode, user])
+
+  useEffect(() => {
+    if (!supabase || dataMode !== 'supabase' || !user) return
+    const client = supabase
+    const channel = client
+      .channel('flowlead-leads')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, async () => {
+        try {
+          setLeads(await listRemoteLeads())
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : 'Unable to synchronize leads')
+        }
+      })
+      .subscribe()
+
+    return () => {
+      void client.removeChannel(channel)
+    }
   }, [dataMode, user])
 
   const addLocalLead = (data: LeadFormData) => {
@@ -152,10 +171,15 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       updateLocalLead(id, updates)
       return
     }
+    const previous = leads.find((lead) => lead.id === id)
+    setLeads((current) => current.map((lead) => (lead.id === id ? { ...lead, ...updates } : lead)))
     try {
       const updated = await updateRemoteLead(id, updates)
       setLeads((current) => current.map((lead) => (lead.id === id ? updated : lead)))
     } catch (cause) {
+      if (previous) {
+        setLeads((current) => current.map((lead) => (lead.id === id ? previous : lead)))
+      }
       const message = cause instanceof Error ? cause.message : 'Unable to update this lead'
       setError(message)
       throw new Error(message)

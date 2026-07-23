@@ -2,14 +2,15 @@ import { Bell, CheckCheck, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLeads } from '../context/LeadDataContext'
+import { useNotifications } from '../context/NotificationContext'
 
 export function DashboardHeaderTools() {
   const { leads } = useLeads()
+  const { notifications, unreadCount, isLoading, error, markAllRead } = useNotifications()
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const [readVersion, setReadVersion] = useState('')
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -38,15 +39,6 @@ export function DashboardHeaderTools() {
       )
       .slice(0, 6)
   }, [leads, query])
-
-  const notifications = leads.slice(0, 6).map((lead) => ({
-    lead,
-    event: lead.timeline.at(-1),
-  }))
-  const notificationVersion = notifications
-    .map(({ lead, event }) => `${lead.id}:${event?.id ?? ''}`)
-    .join('|')
-  const hasUnread = notifications.length > 0 && readVersion !== notificationVersion
 
   return (
     <>
@@ -120,7 +112,9 @@ export function DashboardHeaderTools() {
           aria-expanded={notificationsOpen}
         >
           <Bell size={19} />
-          {hasUnread && <i />}
+          {unreadCount > 0 && (
+            <span className="notification-count">{Math.min(99, unreadCount)}</span>
+          )}
         </button>
         {notificationsOpen && (
           <div className="header-popover notification-popover">
@@ -129,29 +123,30 @@ export function DashboardHeaderTools() {
                 <h3>Notifications</h3>
                 <p>Recent pipeline activity</p>
               </div>
-              <button onClick={() => setReadVersion(notificationVersion)} disabled={!hasUnread}>
+              <button onClick={() => void markAllRead()} disabled={unreadCount === 0}>
                 <CheckCheck /> Mark all read
               </button>
             </header>
             <div className="notification-list">
-              {notifications.map(({ lead, event }) => (
+              {notifications.slice(0, 8).map((notification) => (
                 <button
-                  key={lead.id}
+                  className={notification.read ? 'read' : ''}
+                  key={notification.id}
                   onClick={() => {
-                    navigate(`/dashboard/leads/${lead.id}`)
+                    navigate(`/dashboard/leads/${notification.leadId}`)
                     setNotificationsOpen(false)
                   }}
                 >
-                  <i className={event?.tone ? `notification-${event.tone}` : ''} />
+                  <i className={`notification-${notification.tone}`} />
                   <span>
-                    <strong>{event?.label ?? 'Lead updated'}</strong>
-                    <small>
-                      {lead.clientName} · {event?.timestamp ?? 'Recently'}
-                    </small>
+                    <strong>{notification.title}</strong>
+                    <small>{notification.message}</small>
                   </span>
                 </button>
               ))}
-              {notifications.length === 0 && <p>No notifications yet.</p>}
+              {isLoading && <p>Loading notifications…</p>}
+              {!isLoading && notifications.length === 0 && <p>No notifications yet.</p>}
+              {error && <p className="notification-error">{error}</p>}
             </div>
           </div>
         )}

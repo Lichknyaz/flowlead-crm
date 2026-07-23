@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { LeadProvider } from './context/LeadDataContext'
 import { AuthProvider } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
 import App from './App'
 import './styles.css'
 import './dashboard.css'
@@ -12,13 +13,16 @@ import './reset-button.css'
 import './visual-tuning.css'
 import './fullstack.css'
 import './crm-workflows.css'
+import './kanban-realtime.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <LeadProvider>
-          <App />
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
         </LeadProvider>
       </AuthProvider>
     </BrowserRouter>
