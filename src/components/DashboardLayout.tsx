@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  Bell,
   Bot,
   ChevronDown,
   LayoutDashboard,
@@ -8,7 +7,6 @@ import {
   Menu,
   Plus,
   RotateCcw,
-  Search,
   Users,
   Wrench,
   X,
@@ -18,6 +16,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Brand } from './Brand'
 import { useLeads } from '../context/LeadDataContext'
 import { useAuth } from '../context/AuthContext'
+import { useCrmUi } from '../context/CrmUiContext'
+import { DashboardHeaderTools } from './DashboardHeaderTools'
 
 const titles: Record<string, [string, string]> = {
   '/dashboard': ['Dashboard', 'A live overview of your service requests'],
@@ -29,6 +29,7 @@ export function DashboardLayout() {
   const [open, setOpen] = useState(false)
   const { leads, resetDemo, dataMode } = useLeads()
   const { user, signOut } = useAuth()
+  const { openLeadModal } = useCrmUi()
   const location = useLocation()
   const title = location.pathname.startsWith('/dashboard/leads/')
     ? ['Lead details', 'Request history and next actions']
@@ -122,18 +123,10 @@ export function DashboardLayout() {
             <p>{title[1]}</p>
           </div>
           <div className="header-actions">
-            <button className="search-button">
-              <Search size={18} />
-              <span>Search anything...</span>
-              <kbd>Ctrl K</kbd>
-            </button>
-            <button className="icon-button">
-              <Bell size={19} />
-              <i />
-            </button>
-            <NavLink className="button button-primary button-small" to="/request">
+            <DashboardHeaderTools />
+            <button className="button button-primary button-small" onClick={openLeadModal}>
               <Plus size={17} /> New lead
-            </NavLink>
+            </button>
           </div>
         </header>
         <div className="dashboard-content">

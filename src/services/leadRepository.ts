@@ -49,18 +49,26 @@ export async function listRemoteLeads(): Promise<Lead[]> {
 export async function createRemoteLead(form: LeadFormData): Promise<Lead> {
   if (!supabase) throw new Error('Supabase is not configured')
 
-  const { data, error } = await supabase
-    .rpc('submit_lead', {
-      full_name: form.fullName,
-      contact_phone: form.phone,
-      contact_email: form.email,
-      requested_service: form.serviceType,
-      request_urgency: form.urgency,
-      service_location: form.location,
-      requested_date: form.preferredDate || null,
-      problem_message: form.message,
-    })
+  const request = {
+    full_name: form.fullName,
+    contact_phone: form.phone,
+    contact_email: form.email,
+    requested_service: form.serviceType,
+    request_urgency: form.urgency,
+    service_location: form.location,
+    requested_date: form.preferredDate || null,
+    problem_message: form.message,
+  }
+  let response = await supabase
+    .rpc('submit_lead', { ...request, submission_source: form.source ?? 'website' })
     .single()
+
+  // Keep lead creation available while an existing Supabase project is applying the new migration.
+  if (response.error?.code === 'PGRST202') {
+    response = await supabase.rpc('submit_lead', request).single()
+  }
+
+  const { data, error } = response
 
   if (error) throw error
 

@@ -11,24 +11,53 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
 import { MetricCard } from '../components/MetricCard'
+import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
 
+type PipelinePeriod = 'week' | 'month' | 'all'
+
+const pragueDate = (value: string | Date) =>
+  new Date(value).toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' })
+
 export function DashboardPage() {
-  const { leads } = useLeads()
+  const { leads, dataMode, refreshLeads } = useLeads()
+  const { openLeadModal } = useCrmUi()
+  const navigate = useNavigate()
+  const [period, setPeriod] = useState<PipelinePeriod>('week')
   const count = (status: string) => leads.filter((lead) => lead.status === status).length
-  const today = leads.filter((lead) => lead.createdAt.slice(0, 10) === '2026-07-22').length
+  const todayKey = pragueDate(new Date())
+  const today = leads.filter((lead) => pragueDate(lead.createdAt) === todayKey).length
+  const pipelineLeads = useMemo(() => {
+    if (period === 'all') return leads
+    const now = new Date()
+    const start = new Date(now)
+    if (period === 'week') {
+      const daysFromMonday = (now.getDay() + 6) % 7
+      start.setDate(now.getDate() - daysFromMonday)
+    } else {
+      start.setDate(1)
+    }
+    start.setHours(0, 0, 0, 0)
+    return leads.filter((lead) => new Date(lead.createdAt) >= start)
+  }, [leads, period])
+  const pipelineCount = (status: string) =>
+    pipelineLeads.filter((lead) => lead.status === status).length
   return (
     <>
       <div className="demo-banner">
         <span>
-          <Sparkles size={17} /> You're viewing a live demo workspace. Try updating a lead.
+          <Sparkles size={17} />{' '}
+          {dataMode === 'supabase'
+            ? 'Live workspace is connected and synced with Supabase.'
+            : "You're viewing a local demo workspace. Try updating a lead."}
         </span>
-        <Link to="/request">
-          Submit a test request <ArrowRight size={16} />
-        </Link>
+        <button onClick={openLeadModal}>
+          Add a lead <ArrowRight size={16} />
+        </button>
       </div>
       <section className="metrics-grid">
         <MetricCard
@@ -45,6 +74,8 @@ export function DashboardPage() {
               vs last week
             </>
           }
+          onView={() => navigate('/dashboard/leads')}
+          onRefresh={refreshLeads}
         />
         <MetricCard
           label="New today"
@@ -60,6 +91,8 @@ export function DashboardPage() {
               since yesterday
             </>
           }
+          onView={() => navigate('/dashboard/leads?period=today')}
+          onRefresh={refreshLeads}
         />
         <MetricCard
           label="Booked"
@@ -75,6 +108,8 @@ export function DashboardPage() {
               conversion
             </>
           }
+          onView={() => navigate('/dashboard/leads?status=booked')}
+          onRefresh={refreshLeads}
         />
         <MetricCard
           label="Completed"
@@ -90,6 +125,8 @@ export function DashboardPage() {
               vs last week
             </>
           }
+          onView={() => navigate('/dashboard/leads?status=completed')}
+          onRefresh={refreshLeads}
         />
         <MetricCard
           label="Urgent open"
@@ -101,6 +138,8 @@ export function DashboardPage() {
           icon={<AlertTriangle />}
           tone="amber"
           note={<>Needs attention</>}
+          onView={() => navigate('/dashboard/leads?urgency=Urgent&open=1')}
+          onRefresh={refreshLeads}
         />
       </section>
       <section className="dashboard-grid">
@@ -122,15 +161,23 @@ export function DashboardPage() {
               <h2>Pipeline</h2>
               <p>Lead distribution by status</p>
             </div>
-            <button>This week⌄</button>
+            <select
+              value={period}
+              onChange={(event) => setPeriod(event.target.value as PipelinePeriod)}
+              aria-label="Pipeline period"
+            >
+              <option value="week">This week</option>
+              <option value="month">This month</option>
+              <option value="all">All time</option>
+            </select>
           </header>
           <div className="pipeline-total">
-            <strong>{leads.length}</strong>
+            <strong>{pipelineLeads.length}</strong>
             <span>active and closed leads</span>
           </div>
           <div className="pipeline-bars">
             {(['new', 'contacted', 'booked', 'in progress', 'completed'] as const).map((status) => {
-              const value = count(status)
+              const value = pipelineCount(status)
               return (
                 <div key={status}>
                   <span>
@@ -139,7 +186,9 @@ export function DashboardPage() {
                   </span>
                   <strong>{value}</strong>
                   <em
-                    style={{ width: `${Math.max(7, (value / Math.max(1, leads.length)) * 100)}%` }}
+                    style={{
+                      width: `${Math.max(7, (value / Math.max(1, pipelineLeads.length)) * 100)}%`,
+                    }}
                   />
                 </div>
               )
@@ -156,7 +205,7 @@ export function DashboardPage() {
             </div>
           </header>
           <div>
-            <Link to="/request">
+            <button onClick={openLeadModal}>
               <span className="action-icon blue">
                 <Plus />
               </span>
@@ -165,7 +214,7 @@ export function DashboardPage() {
                 <small>Create a request manually</small>
               </span>
               <ArrowRight />
-            </Link>
+            </button>
             <Link to="/dashboard/leads">
               <span className="action-icon green">
                 <MessageSquareText />

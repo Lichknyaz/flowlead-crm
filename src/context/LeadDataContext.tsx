@@ -91,7 +91,7 @@ export function LeadProvider({ children }: { children: ReactNode }) {
         {
           id: crypto.randomUUID(),
           label: 'Request received',
-          detail: 'Website form submitted',
+          detail: data.source === 'crm' ? 'Created manually in CRM' : 'Website form submitted',
           timestamp: 'Just now',
           tone: 'blue',
         },

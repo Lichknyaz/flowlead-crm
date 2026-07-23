@@ -1,44 +1,104 @@
-import { Download, Filter, Plus, Search, SlidersHorizontal } from 'lucide-react'
+import { Download, Filter, Plus, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
+import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
-import { leadStatuses, type LeadStatus } from '../types/lead'
+import { createLeadsCsvHref } from '../utils/leadExport'
+import { leadStatuses, type LeadStatus, type Urgency } from '../types/lead'
+
+type LeadView = 'all' | 'mine' | 'unassigned'
+
+const isLeadStatus = (value: string | null): value is LeadStatus =>
+  Boolean(value && leadStatuses.includes(value as LeadStatus))
+
+const todayInPrague = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' })
 
 export function LeadsPage() {
   const { leads } = useLeads()
+  const { openLeadModal } = useCrmUi()
+  const [searchParams] = useSearchParams()
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<'all' | LeadStatus>('all')
+  const [view, setView] = useState<LeadView>('all')
+  const requestedStatus = searchParams.get('status')
+  const [status, setStatus] = useState<'all' | LeadStatus>(
+    isLeadStatus(requestedStatus) ? requestedStatus : 'all',
+  )
+  const [urgency, setUrgency] = useState<'all' | Urgency>(
+    searchParams.get('urgency') === 'Urgent' ? 'Urgent' : 'all',
+  )
+  const [dateFrom, setDateFrom] = useState(
+    searchParams.get('period') === 'today' ? todayInPrague() : '',
+  )
+  const [dateTo, setDateTo] = useState(
+    searchParams.get('period') === 'today' ? todayInPrague() : '',
+  )
+  const [openOnly, setOpenOnly] = useState(searchParams.get('open') === '1')
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(
+    Boolean(searchParams.get('urgency') || searchParams.get('period') || searchParams.get('open')),
+  )
   const filtered = useMemo(
     () =>
       leads.filter((lead) => {
         const text =
-          `${lead.clientName} ${lead.serviceType} ${lead.location} ${lead.id}`.toLowerCase()
-        return text.includes(query.toLowerCase()) && (status === 'all' || lead.status === status)
+          `${lead.clientName} ${lead.serviceType} ${lead.location} ${lead.id} ${lead.phone} ${lead.email}`.toLowerCase()
+        const createdDate = lead.createdAt.slice(0, 10)
+        const matchesView =
+          view === 'all' ||
+          (view === 'mine' && lead.assignedUser !== 'Unassigned') ||
+          (view === 'unassigned' && lead.assignedUser === 'Unassigned')
+        return (
+          text.includes(query.toLowerCase()) &&
+          matchesView &&
+          (status === 'all' || lead.status === status) &&
+          (urgency === 'all' || lead.urgency === urgency) &&
+          (!dateFrom || createdDate >= dateFrom) &&
+          (!dateTo || createdDate <= dateTo) &&
+          (!openOnly || !['completed', 'lost'].includes(lead.status))
+        )
       }),
-    [leads, query, status],
+    [dateFrom, dateTo, leads, openOnly, query, status, urgency, view],
   )
+
+  const resetFilters = () => {
+    setQuery('')
+    setStatus('all')
+    setUrgency('all')
+    setDateFrom('')
+    setDateTo('')
+    setOpenOnly(false)
+    setView('all')
+  }
+
   return (
     <>
       <div className="leads-toolbar-top">
         <div className="tab-row">
-          <button className="active">
+          <button className={view === 'all' ? 'active' : ''} onClick={() => setView('all')}>
             All leads <span>{leads.length}</span>
           </button>
-          <button>
+          <button className={view === 'mine' ? 'active' : ''} onClick={() => setView('mine')}>
             My leads <span>{leads.filter((l) => l.assignedUser !== 'Unassigned').length}</span>
           </button>
-          <button>
+          <button
+            className={view === 'unassigned' ? 'active' : ''}
+            onClick={() => setView('unassigned')}
+          >
             Unassigned <span>{leads.filter((l) => l.assignedUser === 'Unassigned').length}</span>
           </button>
         </div>
         <div>
-          <button className="button button-secondary button-small">
+          <a
+            className="button button-secondary button-small"
+            href={filtered.length ? createLeadsCsvHref(filtered) : undefined}
+            download="flowlead-leads.csv"
+            aria-disabled={filtered.length === 0}
+          >
             <Download size={16} /> Export
-          </button>
-          <Link className="button button-primary button-small" to="/request">
+          </a>
+          <button className="button button-primary button-small" onClick={openLeadModal}>
             <Plus size={16} /> Add lead
-          </Link>
+          </button>
         </div>
       </div>
       <section className="panel leads-panel">
@@ -64,13 +124,66 @@ export function LeadsPage() {
               ))}
             </select>
           </label>
-          <button className="filter-button">
+          <button
+            className={`filter-button ${moreFiltersOpen ? 'active' : ''}`}
+            onClick={() => setMoreFiltersOpen((current) => !current)}
+          >
             <SlidersHorizontal /> More filters
           </button>
           <span className="filter-result">
             {filtered.length} result{filtered.length === 1 ? '' : 's'}
           </span>
         </div>
+        {moreFiltersOpen && (
+          <div className="advanced-filters">
+            <label>
+              Urgency
+              <select
+                value={urgency}
+                onChange={(event) => setUrgency(event.target.value as 'all' | Urgency)}
+              >
+                <option value="all">All priorities</option>
+                <option>Standard</option>
+                <option>Soon</option>
+                <option>Urgent</option>
+              </select>
+            </label>
+            <label>
+              Received from
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(event) => setDateFrom(event.target.value)}
+              />
+            </label>
+            <label>
+              Received to
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(event) => setDateTo(event.target.value)}
+              />
+            </label>
+            <label className="open-filter">
+              <input
+                type="checkbox"
+                checked={openOnly}
+                onChange={(event) => setOpenOnly(event.target.checked)}
+              />
+              Open leads only
+            </label>
+            <button onClick={resetFilters}>
+              <RotateCcw /> Reset filters
+            </button>
+            <button
+              className="close-advanced"
+              onClick={() => setMoreFiltersOpen(false)}
+              aria-label="Close more filters"
+            >
+              <X />
+            </button>
+          </div>
+        )}
         <LeadTable leads={filtered} />
       </section>
     </>

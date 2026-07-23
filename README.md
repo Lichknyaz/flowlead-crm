@@ -73,7 +73,7 @@ Never expose a Supabase service-role key in a `VITE_` variable or commit it to G
 ## Supabase setup
 
 1. Create a Supabase project.
-2. Open the SQL Editor and run `supabase/migrations/202607220001_initial_schema.sql`.
+2. Open the SQL Editor and run the files in `supabase/migrations` in filename order. For an existing installation, run only migrations newer than the ones already applied.
 3. In Authentication → Users, create the workspace owner email/password account.
 4. Copy the project URL and publishable key into `.env.local` and the matching Vercel environment variables.
 
