@@ -14,6 +14,7 @@ import './visual-tuning.css'
 import './fullstack.css'
 import './crm-workflows.css'
 import './kanban-realtime.css'
+import './reports.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
