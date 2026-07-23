@@ -9,6 +9,7 @@ import { LeadsPage } from './pages/LeadsPage'
 import { LeadDetailPage } from './pages/LeadDetailPage'
 import { AutomationPage } from './pages/AutomationPage'
 import { DashboardGuard } from './components/DashboardGuard'
+import { CrmUiProvider } from './context/CrmUiContext'
 
 export default function App() {
   return (
@@ -18,7 +19,14 @@ export default function App() {
       <Route path="/request/success" element={<SuccessPage />} />
       <Route path="/demo" element={<DemoAccessPage />} />
       <Route element={<DashboardGuard />}>
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route
+          path="/dashboard"
+          element={
+            <CrmUiProvider>
+              <DashboardLayout />
+            </CrmUiProvider>
+          }
+        >
           <Route index element={<DashboardPage />} />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="leads/:id" element={<LeadDetailPage />} />

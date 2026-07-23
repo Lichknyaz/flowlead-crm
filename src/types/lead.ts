@@ -43,4 +43,5 @@ export interface LeadFormData {
   location: string
   preferredDate: string
   message: string
+  source?: 'website' | 'crm'
 }

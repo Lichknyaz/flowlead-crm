@@ -11,6 +11,7 @@ import './responsive.css'
 import './reset-button.css'
 import './visual-tuning.css'
 import './fullstack.css'
+import './crm-workflows.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

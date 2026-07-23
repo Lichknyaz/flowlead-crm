@@ -1,7 +1,9 @@
-import { ChevronRight, MoreHorizontal } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Eye, MessageCircle, MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StatusBadge, UrgencyBadge } from './StatusBadge'
 import type { Lead } from '../types/lead'
+import { useLeads } from '../context/LeadDataContext'
 
 const relativeDate = (value: string) => {
   const date = new Date(value)
@@ -14,6 +16,22 @@ const relativeDate = (value: string) => {
 
 export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?: boolean }) {
   const navigate = useNavigate()
+  const { updateLead } = useLeads()
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | null>(null)
+
+  const changeStatus = async (lead: Lead, status: 'contacted' | 'completed') => {
+    setUpdating(lead.id)
+    try {
+      await updateLead(lead.id, { status })
+      setActiveMenu(null)
+    } catch {
+      // The shared lead context exposes the actionable error in the CRM UI.
+    } finally {
+      setUpdating(null)
+    }
+  }
+
   return (
     <div className="table-wrap">
       <table className="lead-table">
@@ -58,9 +76,42 @@ export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?:
               </td>
               <td>{relativeDate(lead.createdAt)}</td>
               <td>
-                <button className="row-action">
-                  <MoreHorizontal size={18} />
-                </button>
+                <div className="row-action-wrap">
+                  <button
+                    className="row-action"
+                    aria-label={`Actions for ${lead.clientName}`}
+                    aria-expanded={activeMenu === lead.id}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setActiveMenu((current) => (current === lead.id ? null : lead.id))
+                    }}
+                  >
+                    <MoreHorizontal size={18} />
+                  </button>
+                  {activeMenu === lead.id && (
+                    <div className="row-action-menu" onClick={(event) => event.stopPropagation()}>
+                      <button onClick={() => navigate(`/dashboard/leads/${lead.id}`)}>
+                        <Eye /> Open details
+                      </button>
+                      {lead.status === 'new' && (
+                        <button
+                          onClick={() => void changeStatus(lead, 'contacted')}
+                          disabled={updating === lead.id}
+                        >
+                          <MessageCircle /> Mark contacted
+                        </button>
+                      )}
+                      {!['completed', 'lost'].includes(lead.status) && (
+                        <button
+                          onClick={() => void changeStatus(lead, 'completed')}
+                          disabled={updating === lead.id}
+                        >
+                          <CheckCircle2 /> Mark completed
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <ChevronRight className="mobile-row-arrow" size={18} />
               </td>
             </tr>

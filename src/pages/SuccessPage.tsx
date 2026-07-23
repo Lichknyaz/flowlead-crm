@@ -1,9 +1,11 @@
 import { CheckCircle2, LayoutDashboard } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { PublicHeader } from '../components/PublicHeader'
+import { useLeads } from '../context/LeadDataContext'
 
 export function SuccessPage() {
   const { state } = useLocation() as { state: { id?: string; name?: string } | null }
+  const { dataMode } = useLeads()
   return (
     <div className="public-page">
       <PublicHeader />
@@ -37,9 +39,11 @@ export function SuccessPage() {
             <LayoutDashboard size={18} /> View it in CRM
           </Link>
         </div>
-        <small className="demo-disclaimer">
-          Portfolio demo: this request is stored only in your browser.
-        </small>
+        {dataMode === 'local' && (
+          <small className="demo-disclaimer">
+            Portfolio demo: this request is stored only in your browser.
+          </small>
+        )}
       </main>
     </div>
   )

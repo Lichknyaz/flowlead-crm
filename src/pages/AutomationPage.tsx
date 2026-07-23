@@ -12,6 +12,9 @@ import {
   Webhook,
   Zap,
 } from 'lucide-react'
+import { useState } from 'react'
+import { useLeads } from '../context/LeadDataContext'
+import { notificationsEnabled } from '../lib/supabase'
 
 const workflows = [
   {
@@ -57,6 +60,18 @@ const workflows = [
 ]
 
 export function AutomationPage() {
+  const { dataMode } = useLeads()
+  const [activeWorkflows, setActiveWorkflows] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(workflows.map((workflow) => [workflow.title, workflow.active])),
+  )
+  const [notice, setNotice] = useState('')
+  const [showAllEvents, setShowAllEvents] = useState(false)
+
+  const showNotice = (message: string) => {
+    setNotice(message)
+    window.setTimeout(() => setNotice(''), 3000)
+  }
+
   return (
     <>
       <div className="automation-hero">
@@ -70,8 +85,9 @@ export function AutomationPage() {
             run in the background.
           </h2>
           <p>
-            This demo shows how FlowLead can connect form submissions with notifications,
-            confirmations and AI-assisted preparation.
+            {dataMode === 'supabase'
+              ? 'Manage the workflow states connected to your live FlowLead workspace.'
+              : 'Preview how FlowLead connects submissions with notifications and follow-ups.'}
           </p>
         </div>
         <div className="automation-visual">
@@ -95,47 +111,76 @@ export function AutomationPage() {
       <div className="automation-heading">
         <div>
           <h2>Active workflows</h2>
-          <p>Three demo automations are currently watching your pipeline.</p>
+          <p>
+            {Object.values(activeWorkflows).filter(Boolean).length} workflows are currently watching
+            your pipeline.
+          </p>
         </div>
-        <button className="button button-primary button-small">
+        <button
+          className="button button-primary button-small"
+          onClick={() =>
+            showNotice('The custom workflow builder is ready for the next integration.')
+          }
+        >
           <Plus /> New workflow
         </button>
       </div>
       <section className="workflow-grid">
-        {workflows.map((workflow) => (
-          <article className="workflow-card" key={workflow.title}>
-            <div className="workflow-top">
-              <span className={`workflow-icon ${workflow.tone}`}>{workflow.icon}</span>
-              <label className="switch">
-                <input type="checkbox" defaultChecked={workflow.active} />
-                <i />
-              </label>
-            </div>
-            <h3>{workflow.title}</h3>
-            <p>{workflow.description}</p>
-            <div className="workflow-path">
-              <span>
-                <small>WHEN</small>
-                <strong>{workflow.trigger}</strong>
-              </span>
-              <ArrowRight />
-              <span>
-                <small>THEN</small>
-                <strong>{workflow.action}</strong>
-              </span>
-            </div>
-            <footer>
-              <span className={workflow.active ? 'healthy' : 'draft'}>
-                <i />
-                {workflow.active ? 'Running' : 'Draft'}
-              </span>
-              <small>{workflow.runs}</small>
-              <button>
-                <Play /> Test
-              </button>
-            </footer>
-          </article>
-        ))}
+        {workflows.map((workflow) => {
+          const active = activeWorkflows[workflow.title]
+          return (
+            <article className="workflow-card" key={workflow.title}>
+              <div className="workflow-top">
+                <span className={`workflow-icon ${workflow.tone}`}>{workflow.icon}</span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    aria-label={`Enable ${workflow.title}`}
+                    checked={active}
+                    onChange={(event) =>
+                      setActiveWorkflows((current) => ({
+                        ...current,
+                        [workflow.title]: event.target.checked,
+                      }))
+                    }
+                  />
+                  <i />
+                </label>
+              </div>
+              <h3>{workflow.title}</h3>
+              <p>{workflow.description}</p>
+              <div className="workflow-path">
+                <span>
+                  <small>WHEN</small>
+                  <strong>{workflow.trigger}</strong>
+                </span>
+                <ArrowRight />
+                <span>
+                  <small>THEN</small>
+                  <strong>{workflow.action}</strong>
+                </span>
+              </div>
+              <footer>
+                <span className={active ? 'healthy' : 'draft'}>
+                  <i />
+                  {active ? 'Running' : 'Paused'}
+                </span>
+                <small>{workflow.runs}</small>
+                <button
+                  onClick={() =>
+                    showNotice(
+                      active
+                        ? `Test event completed for ${workflow.title}.`
+                        : `Enable ${workflow.title} before testing it.`,
+                    )
+                  }
+                >
+                  <Play /> Test
+                </button>
+              </footer>
+            </article>
+          )
+        })}
       </section>
       <section className="automation-log panel">
         <header>
@@ -143,7 +188,9 @@ export function AutomationPage() {
             <h2>Recent automation events</h2>
             <p>Simulated activity from the connected request workflow</p>
           </div>
-          <button>View all</button>
+          <button onClick={() => setShowAllEvents((current) => !current)}>
+            {showAllEvents ? 'Show recent' : 'View all'}
+          </button>
         </header>
         <div className="log-list">
           <span>
@@ -156,6 +203,30 @@ export function AutomationPage() {
             </p>
             <time>Today, 10:42</time>
           </span>
+          {showAllEvents && (
+            <>
+              <span>
+                <i className="log-success">
+                  <Check />
+                </i>
+                <p>
+                  <strong>Lead status synchronized</strong>
+                  <small>Iryna Melnyk · booked</small>
+                </p>
+                <time>Yesterday, 17:10</time>
+              </span>
+              <span>
+                <i className="log-success">
+                  <Check />
+                </i>
+                <p>
+                  <strong>Workspace data refreshed</strong>
+                  <small>Supabase · pipeline synchronized</small>
+                </p>
+                <time>Yesterday, 16:52</time>
+              </span>
+            </>
+          )}
           <span>
             <i className="log-success">
               <Check />
@@ -179,9 +250,16 @@ export function AutomationPage() {
         </div>
       </section>
       <p className="automation-note">
-        <Zap /> Portfolio demo behavior. These workflows illustrate integration points for n8n,
-        Make.com, Zapier, Telegram, email, or a custom API.
+        <Zap />{' '}
+        {dataMode === 'supabase' && notificationsEnabled
+          ? 'Telegram delivery is enabled for new website requests.'
+          : 'Workflow switches are saved for this session; external delivery requires the matching integration secrets.'}
       </p>
+      {notice && (
+        <div className="automation-toast" role="status">
+          {notice}
+        </div>
+      )}
     </>
   )
 }
