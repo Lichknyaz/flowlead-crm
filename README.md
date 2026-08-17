@@ -22,7 +22,7 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 - `/dashboard` — CRM overview
 - `/dashboard/leads` — searchable lead table and Kanban pipeline
 - `/dashboard/leads/:id` — status, notes, assignment, timeline, and demo AI summary
-- `/dashboard/automation` — workflow concept and automation events
+- `/dashboard/automation` — persisted workflow rules, tests, due checks, and execution history
 - `/dashboard/reports` — pipeline, service, urgency, and workload analytics
 - `/dashboard/calendar` — monthly visit planning and upcoming appointments
 
@@ -91,6 +91,18 @@ Deploy `supabase/functions/notify-new-lead`, then add these function secrets in 
 - `TELEGRAM_CHAT_ID`
 
 Finally set `VITE_ENABLE_NOTIFICATIONS=true`. Leave it false until the function and secrets are ready.
+
+## Automation roadmap
+
+Automation is being delivered in small, auditable stages:
+
+1. **Foundation — implemented:** owner-scoped workflow rules, persistent execution history, realtime updates, rule testing, new-lead and status-change events, and on-demand response-reminder checks.
+2. **External delivery — next:** route enabled Telegram and confirmation-email rules through secured Supabase Edge Function webhooks, with delivery status and retry details recorded in the event log.
+3. **Scheduling:** run overdue-response and upcoming-appointment checks automatically with Supabase Cron instead of the manual **Run due checks** action.
+4. **Workflow builder:** create custom trigger, delay, condition, action, and message-template combinations from the CRM.
+5. **Production controls:** retry policy, idempotency, rate limits, integration health, and alerting for failed runs.
+
+Apply `supabase/migrations/202608170002_automation_foundation.sql` before opening the live Automation page. The migration creates rules separately for each authenticated owner and keeps rule and event access scoped to that account.
 
 ## Deploy to Vercel
 

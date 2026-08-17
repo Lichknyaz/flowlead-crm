@@ -7,7 +7,7 @@ import { DemoAccessPage } from './pages/DemoAccessPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LeadsPage } from './pages/LeadsPage'
 import { LeadDetailPage } from './pages/LeadDetailPage'
-import { AutomationPage } from './pages/AutomationPage'
+import { AutomationWorkspace } from './pages/AutomationWorkspace'
 import { ReportsPage } from './pages/ReportsPage'
 import { CalendarPage } from './pages/CalendarPage'
 import { DashboardGuard } from './components/DashboardGuard'
@@ -32,7 +32,7 @@ export default function App() {
           <Route index element={<DashboardPage />} />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="leads/:id" element={<LeadDetailPage />} />
-          <Route path="automation" element={<AutomationPage />} />
+          <Route path="automation" element={<AutomationWorkspace />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="calendar" element={<CalendarPage />} />
         </Route>
