@@ -32,6 +32,8 @@ interface AutomationEventRow {
   detail: string
   error_message: string
   is_test: boolean
+  attempt_count: number
+  last_attempt_at: string | null
 }
 
 const toRule = (row: AutomationRuleRow): AutomationRule => ({
@@ -59,6 +61,8 @@ const toEvent = (row: AutomationEventRow): AutomationEvent => ({
   detail: row.detail,
   errorMessage: row.error_message,
   isTest: row.is_test,
+  attemptCount: Number(row.attempt_count ?? 0),
+  lastAttemptAt: row.last_attempt_at,
 })
 
 export async function listRemoteAutomationRules() {
@@ -100,6 +104,26 @@ export async function testRemoteAutomationRule(id: string) {
     .single()
   if (error) throw error
   return toEvent(data as AutomationEventRow)
+}
+
+export async function testRemoteTelegramRule(id: string) {
+  if (!supabase) throw new Error('Supabase is not configured')
+  const { data, error } = await supabase.functions.invoke('notify-new-lead', {
+    body: { testRuleId: id },
+  })
+  if (error) throw error
+  if (!data?.event) throw new Error('Telegram test did not return a delivery event')
+  return toEvent(data.event as AutomationEventRow)
+}
+
+export async function retryRemoteAutomationEvent(id: string) {
+  if (!supabase) throw new Error('Supabase is not configured')
+  const { data, error } = await supabase.functions.invoke('notify-new-lead', {
+    body: { eventId: id },
+  })
+  if (error) throw error
+  if (!data?.event) throw new Error('Telegram retry did not return a delivery event')
+  return toEvent(data.event as AutomationEventRow)
 }
 
 export async function runRemoteDueAutomations() {

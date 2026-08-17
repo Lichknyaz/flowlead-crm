@@ -14,5 +14,3 @@ export const supabase = isSupabaseConfigured
       },
     })
   : null
-
-export const notificationsEnabled = import.meta.env.VITE_ENABLE_NOTIFICATIONS === 'true'

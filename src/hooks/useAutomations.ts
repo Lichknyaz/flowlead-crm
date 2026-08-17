@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase'
 import {
   listRemoteAutomationEvents,
   listRemoteAutomationRules,
+  retryRemoteAutomationEvent,
   runRemoteDueAutomations,
   setRemoteAutomationRuleEnabled,
   testRemoteAutomationRule,
+  testRemoteTelegramRule,
 } from '../services/automationRepository'
 import type { AutomationEvent, AutomationRule } from '../types/automation'
 import { useAuth } from '../context/AuthContext'
@@ -35,6 +37,7 @@ export function useAutomations() {
   )
   const [isLoading, setIsLoading] = useState(dataMode === 'supabase')
   const [busyRuleId, setBusyRuleId] = useState<string | null>(null)
+  const [busyEventId, setBusyEventId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
@@ -136,7 +139,9 @@ export function useAutomations() {
     try {
       const event =
         dataMode === 'supabase'
-          ? await testRemoteAutomationRule(id)
+          ? rule.actionType === 'telegram'
+            ? await testRemoteTelegramRule(id)
+            : await testRemoteAutomationRule(id)
           : {
               id: crypto.randomUUID(),
               createdAt: new Date().toISOString(),
@@ -149,6 +154,8 @@ export function useAutomations() {
                 : 'The rule condition and action are ready.',
               errorMessage: '',
               isTest: true,
+              attemptCount: rule.requiresIntegration ? 0 : 1,
+              lastAttemptAt: new Date().toISOString(),
             }
       setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)])
       return event
@@ -158,6 +165,23 @@ export function useAutomations() {
       throw new Error(message)
     } finally {
       setBusyRuleId(null)
+    }
+  }
+
+  const retryEvent = async (id: string) => {
+    if (dataMode !== 'supabase') throw new Error('Retries are available in the live workspace.')
+    setBusyEventId(id)
+    setError(null)
+    try {
+      const event = await retryRemoteAutomationEvent(id)
+      setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)])
+      return event
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : 'Unable to retry automation event'
+      setError(message)
+      throw new Error(message)
+    } finally {
+      setBusyEventId(null)
     }
   }
 
@@ -190,10 +214,12 @@ export function useAutomations() {
     runCounts,
     isLoading,
     busyRuleId,
+    busyEventId,
     error,
     refresh,
     setRuleEnabled,
     testRule,
+    retryEvent,
     runDueChecks,
   }
 }

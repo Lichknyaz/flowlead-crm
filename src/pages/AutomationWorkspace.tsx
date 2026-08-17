@@ -15,7 +15,6 @@ import {
 import { useState } from 'react'
 import { useAutomations } from '../hooks/useAutomations'
 import { useLeads } from '../context/LeadDataContext'
-import { notificationsEnabled } from '../lib/supabase'
 import type { AutomationAction, AutomationEventStatus } from '../types/automation'
 
 const actionPresentation: Record<AutomationAction, { icon: typeof BellRing; tone: string }> = {
@@ -48,9 +47,11 @@ export function AutomationWorkspace() {
     runCounts,
     isLoading,
     busyRuleId,
+    busyEventId,
     error,
     setRuleEnabled,
     testRule,
+    retryEvent,
     runDueChecks,
   } = useAutomations()
   const [notice, setNotice] = useState('')
@@ -88,6 +89,15 @@ export function AutomationWorkspace() {
       showNotice(cause instanceof Error ? cause.message : 'Unable to run due checks.')
     } finally {
       setCheckingDue(false)
+    }
+  }
+
+  const handleRetry = async (id: string) => {
+    try {
+      await retryEvent(id)
+      showNotice('Telegram message delivered successfully.')
+    } catch (cause) {
+      showNotice(cause instanceof Error ? cause.message : 'Unable to retry this delivery.')
     }
   }
 
@@ -248,6 +258,16 @@ export function AutomationWorkspace() {
                 </small>
                 {event.errorMessage && <em>{event.errorMessage}</em>}
               </p>
+              {event.status === 'failed' && event.leadId && (
+                <button
+                  className="log-retry"
+                  disabled={busyEventId === event.id}
+                  onClick={() => void handleRetry(event.id)}
+                >
+                  <RefreshCw className={busyEventId === event.id ? 'spin' : ''} />
+                  {busyEventId === event.id ? 'Retrying…' : 'Retry'}
+                </button>
+              )}
               <time dateTime={event.createdAt}>{formatEventTime(event.createdAt)}</time>
             </span>
           ))}
@@ -265,9 +285,7 @@ export function AutomationWorkspace() {
         <Zap />{' '}
         {dataMode === 'local'
           ? 'Demo switches and test events are saved in this browser.'
-          : notificationsEnabled
-            ? 'Telegram invocation is enabled; delivery also follows the saved Telegram rule.'
-            : 'In-app rules are live. Telegram and email remain paused until their secrets are configured.'}
+          : 'External delivery follows the saved rule state. Telegram attempts and errors are recorded above.'}
       </p>
       {notice && (
         <div className="automation-toast" role="status">

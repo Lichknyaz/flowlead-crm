@@ -30,4 +30,6 @@ export interface AutomationEvent {
   detail: string
   errorMessage: string
   isTest: boolean
+  attemptCount: number
+  lastAttemptAt: string | null
 }

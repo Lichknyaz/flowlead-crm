@@ -14,7 +14,6 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useLeads } from '../context/LeadDataContext'
-import { notificationsEnabled } from '../lib/supabase'
 
 const workflows = [
   {
@@ -251,8 +250,8 @@ export function AutomationPage() {
       </section>
       <p className="automation-note">
         <Zap />{' '}
-        {dataMode === 'supabase' && notificationsEnabled
-          ? 'Telegram delivery is enabled for new website requests.'
+        {dataMode === 'supabase'
+          ? 'External delivery follows the saved rule state and secured webhook configuration.'
           : 'Workflow switches are saved for this session; external delivery requires the matching integration secrets.'}
       </p>
       {notice && (
