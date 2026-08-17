@@ -38,18 +38,26 @@ Relevant migrations:
 - `202608170004_direct_telegram_dispatch.sql`
 - `202608170005_service_role_telegram_permissions.sql`
 
-## Next milestone: scheduled operational automations
+## Scheduled operational automations
 
-The next implementation stage should make existing reminders run automatically and make external delivery resilient.
+The scheduler and safe delivery-recovery baseline were deployed and verified on 2026-08-17.
 
-### 1. Schedule due checks
+- Supabase Cron runs `public.run_scheduled_automations()` every five minutes.
+- The scheduler creates private in-app response and appointment reminders only for enabled rules, with idempotency keys to prevent duplicates.
+- The new **Appointment reminder** rule is available in the CRM, set to a 24-hour window, and remains disabled by default.
+- Telegram events that never started are recovered once; events with an unknown previous delivery result stop as failed with a manual retry path, avoiding duplicate customer-facing messages.
+- The CRM shows the schedule and retains **Run checks now** as a manual fallback.
+
+The production checks confirmed one active `*/5 * * * *` Cron job, one disabled appointment-reminder rule, and a safe manual run with no queued recovery events.
+
+### Completed: schedule due checks
 
 - Run response-reminder checks every five minutes with Supabase Cron.
-- Run upcoming-appointment checks on a separate schedule.
+- Run upcoming-appointment checks in the same five-minute scheduler.
 - Store all schedule calculations in UTC and render them in the workspace's Prague time zone.
 - Keep the existing **Run due checks** action as a safe manual fallback.
 
-### 2. Add delivery recovery
+### Completed: add delivery recovery
 
 - Detect Telegram events that remain `pending` beyond a reasonable timeout.
 - Retry temporary failures with a small bounded backoff policy.
@@ -67,7 +75,7 @@ The next implementation stage should make existing reminders run automatically a
 
 User input required before this step: email provider, sender domain, sender address, and reply-to address.
 
-### 4. Add appointment reminders
+### Completed: add appointment reminders
 
 - Notify the service team before the scheduled visit.
 - Optionally notify the client after the email channel is verified.
@@ -82,13 +90,10 @@ User input required before this step: email provider, sender domain, sender addr
 - Multiple staff accounts and role-based ownership.
 - Monitoring, retention controls, backups, and a production privacy policy.
 
-## Definition of done for the next milestone
+## Next milestone: client confirmation email
 
-The scheduling milestone is complete only when:
+The next meaningful channel is a transactional confirmation email. It needs a provider, a verified sender domain, sender address, and reply-to address before live delivery can be enabled. The implementation should retain the same guarded model as Telegram: explicit rule activation, test action, event history, bounded retries, and no unnecessary customer data in messages.
 
-- due checks run without an open browser;
-- repeated scheduler calls do not create duplicate events;
-- a deliberately overdue synthetic lead creates exactly one reminder;
-- a failed delivery can recover or stop with an actionable terminal error;
-- the result is visible in the CRM event history;
-- migrations, documentation, CI, and the production deployment are all verified.
+## Remaining production scenario checks
+
+Before treating scheduled workflows as fully operational, create an explicitly synthetic overdue lead and an upcoming synthetic appointment, enable their corresponding rules temporarily, and confirm exactly one in-app reminder per item. This needs no real customer data and can be done from the CRM when desired.
