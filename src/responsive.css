@@ -213,7 +213,7 @@
 }
 .log-list > span {
   display: grid;
-  grid-template-columns: 30px 1fr auto;
+  grid-template-columns: 30px 1fr auto auto;
   gap: 9px;
   align-items: center;
   padding: 11px 18px;
@@ -267,6 +267,28 @@
   font-size: 12px;
   font-style: normal;
   margin-top: 3px;
+}
+.log-retry {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8e0ec;
+  border-radius: 8px;
+  color: #2563eb;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-weight: 700;
+  gap: 6px;
+  justify-content: center;
+  padding: 7px 10px;
+}
+.log-retry:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.log-retry svg {
+  height: 14px;
+  width: 14px;
 }
 .automation-error {
   align-items: flex-start;

@@ -1,4 +1,4 @@
-import { notificationsEnabled, supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 import type { Lead, LeadFormData } from '../types/lead'
 
 type LeadUpdates = Partial<
@@ -79,10 +79,6 @@ export async function createRemoteLead(form: LeadFormData): Promise<Lead> {
   if (error) throw error
 
   const lead = toLead(data as LeadRow)
-
-  if (notificationsEnabled) {
-    void supabase.functions.invoke('notify-new-lead', { body: { leadId: lead.id } })
-  }
 
   return lead
 }

@@ -86,6 +86,8 @@ export const createMockAutomationEvents = (): AutomationEvent[] => {
       detail: 'Anna Novak · FL-1048',
       errorMessage: '',
       isTest: false,
+      attemptCount: 1,
+      lastAttemptAt: new Date(now - 12 * 60_000).toISOString(),
     },
     {
       id: 'local-event-2',
@@ -97,6 +99,8 @@ export const createMockAutomationEvents = (): AutomationEvent[] => {
       detail: 'Peter Svoboda · contacted',
       errorMessage: '',
       isTest: false,
+      attemptCount: 1,
+      lastAttemptAt: new Date(now - 52 * 60_000).toISOString(),
     },
   ]
 }
