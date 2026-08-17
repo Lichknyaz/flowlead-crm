@@ -17,6 +17,7 @@ import './crm-workflows.css'
 import './kanban-realtime.css'
 import './reports.css'
 import './operations.css'
+import './crm-typography.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

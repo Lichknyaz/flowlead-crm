@@ -1,0 +1,289 @@
+/* CRM type scale: keep operational text readable without changing the public website. */
+.dashboard-shell {
+  font-size: 14px;
+}
+
+.dashboard-title h1 {
+  font-size: 26px;
+}
+
+.dashboard-title p,
+.demo-banner,
+.automation-hero p {
+  font-size: 14px;
+}
+
+.search-button,
+.sidebar-nav > a,
+.disabled-link,
+.sidebar-bottom > a,
+.sidebar-signout,
+.tab-row button,
+.filter-search input,
+.filter-select,
+.filter-button,
+.detail-controls select,
+.crm-form-grid input,
+.crm-form-grid select,
+.crm-form-grid textarea,
+.reports-toolbar select,
+.task-create-form input,
+.task-create-form select {
+  font-size: 14px;
+}
+
+.workspace-pill strong,
+.user-card strong,
+.demo-mode > span {
+  font-size: 14px;
+}
+
+.workspace-pill small,
+.sidebar-nav > small,
+.demo-mode small,
+.user-card small,
+.disabled-link em {
+  font-size: 12px;
+}
+
+.nav-count,
+.notification-count,
+.avatar,
+.client-avatar {
+  font-size: 12px;
+}
+
+.metric-card > strong {
+  font-size: 34px;
+}
+
+.metric-card > span,
+.metric-card > small {
+  font-size: 13px;
+}
+
+.panel > header h2,
+.task-panel > header h2,
+.upcoming-visits > header h2 {
+  font-size: 19px;
+}
+
+.panel > header p,
+.panel > header > a,
+.panel > header > button,
+.task-panel > header p,
+.task-panel > header button,
+.upcoming-visits > header p {
+  font-size: 13px;
+}
+
+.lead-table th {
+  font-size: 12px;
+}
+
+.lead-table td,
+.client-cell strong,
+.cell-primary {
+  font-size: 14px;
+}
+
+.client-cell small,
+.status,
+.urgency {
+  font-size: 12px;
+}
+
+.pipeline-total span,
+.pipeline-bars span,
+.pipeline-bars strong,
+.quick-actions small,
+.response-gauge span,
+.response-stats small,
+.activity-panel small {
+  font-size: 12px;
+}
+
+.quick-actions strong,
+.response-stats strong,
+.activity-panel strong {
+  font-size: 14px;
+}
+
+.filter-result,
+.lead-identity p,
+.detail-controls label,
+.detail-fields small,
+.message-box small,
+.notes-section > div small,
+.contact-section small,
+.owner-card small,
+.ai-label,
+.timeline-card small,
+.owner-card p {
+  font-size: 13px;
+}
+
+.detail-fields strong,
+.contact-section strong,
+.owner-card strong,
+.message-box p,
+.notes-section textarea,
+.ai-card > p,
+.generated-summary p,
+.timeline-card strong,
+.timeline-card p {
+  font-size: 14px;
+}
+
+.ai-card > button,
+.generated-summary span {
+  font-size: 13px;
+}
+
+.search-results > small,
+.search-results small,
+.search-results p,
+.search-results em,
+.notification-popover header p,
+.notification-popover header button,
+.notification-list small,
+.notification-list p,
+.advanced-filters label,
+.advanced-filters > button,
+.crm-modal header p,
+.crm-form-grid label,
+.crm-form-grid em,
+.crm-toast,
+.automation-toast {
+  font-size: 13px;
+}
+
+.search-results strong,
+.notification-list strong,
+.metric-menu button,
+.row-action-menu button,
+.pipeline-panel > header select,
+.advanced-filters select,
+.advanced-filters input[type='date'] {
+  font-size: 14px;
+}
+
+.kanban-column > header span,
+.kanban-column > header strong,
+.kanban-card-top small,
+.kanban-location,
+.kanban-card-meta > span,
+.kanban-card-footer select,
+.kanban-empty,
+.kanban-error {
+  font-size: 13px;
+}
+
+.kanban-card h3,
+.kanban-card > p {
+  font-size: 14px;
+}
+
+.automation-heading p,
+.workflow-card > p,
+.workflow-path small,
+.workflow-card footer small,
+.log-list small,
+.log-list time,
+.automation-note {
+  font-size: 13px;
+}
+
+.workflow-path strong,
+.workflow-card footer span,
+.workflow-card footer button,
+.log-list strong {
+  font-size: 14px;
+}
+
+.reports-toolbar strong,
+.reports-toolbar select,
+.report-kpis article > p,
+.service-report-row,
+.service-report-row strong,
+.report-empty,
+.urgency-report-body li strong,
+.team-report-list strong,
+.report-summary strong {
+  font-size: 14px;
+}
+
+.reports-toolbar span,
+.reports-toolbar label,
+.report-kpis article > small,
+.reports-grid .panel > header > span,
+.trend-value > b,
+.trend-day > small,
+.funnel-list span,
+.funnel-list strong,
+.service-report-head,
+.urgency-donut small,
+.urgency-report-body li span,
+.urgency-report-body li small,
+.team-report-list small,
+.team-report-list b,
+.report-summary small {
+  font-size: 12px;
+}
+
+.task-create-form label,
+.finance-section > header > span,
+.finance-fields label,
+.finance-fields label > small,
+.finance-actions > span,
+.operations-error {
+  font-size: 13px;
+}
+
+.task-list span strong,
+.task-list > div > a {
+  font-size: 14px;
+}
+
+.task-list span small {
+  font-size: 13px;
+}
+
+.calendar-toolbar > div button,
+.calendar-toolbar > div strong,
+.calendar-days > div > span,
+.upcoming-visits article > span > strong,
+.upcoming-visits article > select,
+.calendar-empty {
+  font-size: 14px;
+}
+
+.calendar-weekdays span,
+.calendar-days > div > a,
+.calendar-days > div > a b,
+.calendar-days > div > small,
+.upcoming-visits time small,
+.upcoming-visits article > span > small,
+.upcoming-visits article a {
+  font-size: 12px;
+}
+
+.demo-mode button {
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .dashboard-title h1 {
+    font-size: 23px;
+  }
+
+  .dashboard-title p {
+    font-size: 13px;
+  }
+
+  .lead-table td,
+  .client-cell strong,
+  .cell-primary {
+    font-size: 13px;
+  }
+}
