@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { LeadProvider } from './context/LeadDataContext'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
+import { OperationsProvider } from './context/OperationsContext'
 import App from './App'
 import './styles.css'
 import './dashboard.css'
@@ -15,15 +16,18 @@ import './fullstack.css'
 import './crm-workflows.css'
 import './kanban-realtime.css'
 import './reports.css'
+import './operations.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <LeadProvider>
-          <NotificationProvider>
-            <App />
-          </NotificationProvider>
+          <OperationsProvider>
+            <NotificationProvider>
+              <App />
+            </NotificationProvider>
+          </OperationsProvider>
         </LeadProvider>
       </AuthProvider>
     </BrowserRouter>

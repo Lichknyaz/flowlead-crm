@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Bot,
+  CalendarDays,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -24,6 +25,7 @@ const titles: Record<string, [string, string]> = {
   '/dashboard/leads': ['Leads', 'Track, filter and manage every request'],
   '/dashboard/automation': ['Automation', 'Keep routine follow-ups moving automatically'],
   '/dashboard/reports': ['Reports', 'Understand pipeline health and team performance'],
+  '/dashboard/calendar': ['Calendar', 'Plan visits, assignments and service windows'],
 }
 
 export function DashboardLayout() {
@@ -67,6 +69,9 @@ export function DashboardLayout() {
           </NavLink>
           <NavLink to="/dashboard/automation" onClick={() => setOpen(false)}>
             <Bot size={19} /> Automation
+          </NavLink>
+          <NavLink to="/dashboard/calendar" onClick={() => setOpen(false)}>
+            <CalendarDays size={19} /> Calendar
           </NavLink>
           <small>INSIGHTS</small>
           <NavLink to="/dashboard/reports" onClick={() => setOpen(false)}>

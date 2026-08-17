@@ -1,7 +1,9 @@
 import { notificationsEnabled, supabase } from '../lib/supabase'
 import type { Lead, LeadFormData } from '../types/lead'
 
-type LeadUpdates = Partial<Pick<Lead, 'status' | 'notes' | 'urgency' | 'assignedUser'>>
+type LeadUpdates = Partial<
+  Pick<Lead, 'status' | 'notes' | 'urgency' | 'assignedUser' | 'estimatedValue' | 'finalValue'>
+>
 
 interface LeadRow {
   id: string
@@ -17,6 +19,8 @@ interface LeadRow {
   status: Lead['status']
   notes: string
   assigned_user: string
+  estimated_value: number | null
+  final_value: number | null
   timeline: Lead['timeline']
 }
 
@@ -34,6 +38,8 @@ const toLead = (row: LeadRow): Lead => ({
   status: row.status,
   notes: row.notes,
   assignedUser: row.assigned_user,
+  estimatedValue: Number(row.estimated_value ?? 0),
+  finalValue: Number(row.final_value ?? 0),
   timeline: row.timeline ?? [],
 })
 
@@ -89,6 +95,8 @@ export async function updateRemoteLead(id: string, updates: LeadUpdates): Promis
     ...(updates.notes !== undefined ? { notes: updates.notes } : {}),
     ...(updates.urgency ? { urgency: updates.urgency } : {}),
     ...(updates.assignedUser ? { assigned_user: updates.assignedUser } : {}),
+    ...(updates.estimatedValue !== undefined ? { estimated_value: updates.estimatedValue } : {}),
+    ...(updates.finalValue !== undefined ? { final_value: updates.finalValue } : {}),
   }
 
   const { data, error } = await supabase

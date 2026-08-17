@@ -59,7 +59,7 @@
 .report-kpis {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 .report-kpis article {
@@ -124,6 +124,16 @@
 .report-icon.purple {
   background: #f4f3ff;
   color: #6938ef;
+}
+
+.report-icon.money {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.report-kpis article:last-child > strong {
+  font-size: 18px;
+  margin-top: 9px;
 }
 
 .reports-grid {

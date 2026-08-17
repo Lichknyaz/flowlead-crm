@@ -15,6 +15,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LeadTable } from '../components/LeadTable'
 import { MetricCard } from '../components/MetricCard'
+import { TaskPanel } from '../components/TaskPanel'
 import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
 
@@ -196,6 +197,7 @@ export function DashboardPage() {
           </div>
         </article>
       </section>
+      <TaskPanel limit={5} />
       <section className="lower-grid">
         <article className="panel quick-actions">
           <header>
@@ -234,6 +236,16 @@ export function DashboardPage() {
               <span>
                 <strong>View automations</strong>
                 <small>3 workflows active</small>
+              </span>
+              <ArrowRight />
+            </Link>
+            <Link to="/dashboard/calendar">
+              <span className="action-icon blue">
+                <CalendarCheck2 />
+              </span>
+              <span>
+                <strong>Open service calendar</strong>
+                <small>Plan visits and assignments</small>
               </span>
               <ArrowRight />
             </Link>

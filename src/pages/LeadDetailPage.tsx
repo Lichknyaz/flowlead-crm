@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   Bot,
   CalendarDays,
+  Banknote,
   Check,
   Clock3,
   Mail,
@@ -15,8 +16,15 @@ import {
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StatusBadge, UrgencyBadge } from '../components/StatusBadge'
+import { TaskPanel } from '../components/TaskPanel'
 import { useLeads } from '../context/LeadDataContext'
 import { leadStatuses, type LeadStatus, type Urgency } from '../types/lead'
+
+const currency = new Intl.NumberFormat('cs-CZ', {
+  style: 'currency',
+  currency: 'CZK',
+  maximumFractionDigits: 0,
+})
 
 export function LeadDetailPage() {
   const { id } = useParams()
@@ -25,7 +33,14 @@ export function LeadDetailPage() {
   const [note, setNote] = useState(lead?.notes ?? '')
   const [saved, setSaved] = useState(false)
   const [summary, setSummary] = useState(false)
+  const [estimatedValue, setEstimatedValue] = useState(String(lead?.estimatedValue ?? 0))
+  const [finalValue, setFinalValue] = useState(String(lead?.finalValue ?? 0))
+  const [financeSaved, setFinanceSaved] = useState(false)
   useEffect(() => setNote(lead?.notes ?? ''), [lead?.notes])
+  useEffect(() => {
+    setEstimatedValue(String(lead?.estimatedValue ?? 0))
+    setFinalValue(String(lead?.finalValue ?? 0))
+  }, [lead?.estimatedValue, lead?.finalValue])
   if (!lead)
     return (
       <div className="not-found">
@@ -40,6 +55,18 @@ export function LeadDetailPage() {
       setTimeout(() => setSaved(false), 1800)
     } catch {
       setSaved(false)
+    }
+  }
+  const saveFinance = async () => {
+    try {
+      await updateLead(lead.id, {
+        estimatedValue: Math.max(0, Number(estimatedValue) || 0),
+        finalValue: Math.max(0, Number(finalValue) || 0),
+      })
+      setFinanceSaved(true)
+      setTimeout(() => setFinanceSaved(false), 1800)
+    } catch {
+      setFinanceSaved(false)
     }
   }
   return (
@@ -199,6 +226,63 @@ export function LeadDetailPage() {
               </button>
             </div>
           </section>
+          <section className="panel finance-section">
+            <header>
+              <div>
+                <h2>Order value</h2>
+                <p>Estimate and final revenue for this job</p>
+              </div>
+              <span>
+                <Banknote /> CZK
+              </span>
+            </header>
+            <div className="finance-fields">
+              <label>
+                Estimated value
+                <input
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={estimatedValue}
+                  onChange={(event) => setEstimatedValue(event.target.value)}
+                />
+                <small>{currency.format(Number(estimatedValue) || 0)}</small>
+              </label>
+              <label>
+                Final value
+                <input
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={finalValue}
+                  onChange={(event) => setFinalValue(event.target.value)}
+                />
+                <small>{currency.format(Number(finalValue) || 0)}</small>
+              </label>
+            </div>
+            <div className="finance-actions">
+              <span>
+                {lead.status === 'completed' && !lead.finalValue
+                  ? 'Add the final amount to include it in revenue reports.'
+                  : 'Values update the financial report immediately.'}
+              </span>
+              <button
+                className="button button-primary button-small"
+                onClick={() => void saveFinance()}
+              >
+                {financeSaved ? (
+                  <>
+                    <Check /> Saved
+                  </>
+                ) : (
+                  <>
+                    <Save /> Save value
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+          <TaskPanel leadId={lead.id} />
           <section className="panel contact-section">
             <header>
               <div>

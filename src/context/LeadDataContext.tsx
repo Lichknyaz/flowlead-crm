@@ -5,7 +5,9 @@ import { createRemoteLead, listRemoteLeads, updateRemoteLead } from '../services
 import type { Lead, LeadFormData, LeadStatus } from '../types/lead'
 import { useAuth } from './AuthContext'
 
-type LeadUpdates = Partial<Pick<Lead, 'status' | 'notes' | 'urgency' | 'assignedUser'>>
+type LeadUpdates = Partial<
+  Pick<Lead, 'status' | 'notes' | 'urgency' | 'assignedUser' | 'estimatedValue' | 'finalValue'>
+>
 
 interface LeadContextValue {
   leads: Lead[]
@@ -25,7 +27,15 @@ function readInitialLeads() {
   if (isSupabaseConfigured) return []
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    return stored ? (JSON.parse(stored) as Lead[]) : mockLeads
+    if (!stored) return mockLeads
+    return (JSON.parse(stored) as Lead[]).map((lead) => {
+      const defaults = mockLeads.find((item) => item.id === lead.id)
+      return {
+        ...lead,
+        estimatedValue: Number(lead.estimatedValue ?? defaults?.estimatedValue ?? 0),
+        finalValue: Number(lead.finalValue ?? defaults?.finalValue ?? 0),
+      }
+    })
   } catch {
     return mockLeads
   }
@@ -106,6 +116,8 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       status: 'new',
       notes: '',
       assignedUser: 'Unassigned',
+      estimatedValue: 0,
+      finalValue: 0,
       timeline: [
         {
           id: crypto.randomUUID(),
@@ -196,7 +208,10 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       updateLead,
       refreshLeads,
       resetDemo: () => {
-        if (dataMode === 'local') setLeads(mockLeads)
+        if (dataMode === 'local') {
+          setLeads(mockLeads)
+          window.dispatchEvent(new Event('flowlead-reset-demo'))
+        }
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

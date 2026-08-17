@@ -31,6 +31,8 @@ export interface Lead {
   status: LeadStatus
   notes: string
   assignedUser: string
+  estimatedValue: number
+  finalValue: number
   timeline: TimelineEvent[]
 }
 

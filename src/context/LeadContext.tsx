@@ -48,6 +48,8 @@ export function LeadProvider({ children }: { children: ReactNode }) {
       status: 'new',
       notes: '',
       assignedUser: 'Unassigned',
+      estimatedValue: 0,
+      finalValue: 0,
       timeline: [
         {
           id: crypto.randomUUID(),
