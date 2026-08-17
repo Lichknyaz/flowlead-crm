@@ -147,6 +147,11 @@ export function AutomationWorkspace() {
           <p>
             {activeCount} of {rules.length} workflows are currently watching your pipeline.
           </p>
+          {dataMode === 'supabase' && (
+            <small className="automation-schedule-status">
+              <Clock3 /> Scheduled checks run every 5 minutes. You can still run them manually.
+            </small>
+          )}
         </div>
         <button
           className="button button-primary button-small"
@@ -154,7 +159,7 @@ export function AutomationWorkspace() {
           disabled={checkingDue || isLoading}
         >
           <RefreshCw className={checkingDue ? 'spin' : ''} />
-          {checkingDue ? 'Checking…' : 'Run due checks'}
+          {checkingDue ? 'Checking…' : 'Run checks now'}
         </button>
       </div>
 

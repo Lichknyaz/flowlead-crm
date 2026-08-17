@@ -69,6 +69,10 @@ export async function listRemoteAutomationRules() {
   if (!supabase) return []
   const { error: initializationError } = await supabase.rpc('initialize_automation_rules')
   if (initializationError) throw initializationError
+  const { error: scheduledInitializationError } = await supabase.rpc(
+    'initialize_scheduled_automation_rules',
+  )
+  if (scheduledInitializationError) throw scheduledInitializationError
   const { data, error } = await supabase.from('automation_rules').select('*').order('created_at')
   if (error) throw error
   return (data as AutomationRuleRow[]).map(toRule)

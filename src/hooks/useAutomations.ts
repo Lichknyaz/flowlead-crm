@@ -95,13 +95,9 @@ export function useAutomations() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'automation_rules' }, () => {
         void refresh()
       })
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'automation_events' },
-        () => {
-          void refresh()
-        },
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'automation_events' }, () => {
+        void refresh()
+      })
       .subscribe()
     return () => {
       void client.removeChannel(channel)

@@ -71,6 +71,20 @@ export const createMockAutomationRules = (): AutomationRule[] => [
     requiresIntegration: false,
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 'local-appointment-reminder',
+    key: 'appointment-reminder',
+    title: 'Appointment reminder',
+    description: 'Remind the workspace before a scheduled service visit.',
+    triggerType: 'appointment_upcoming',
+    triggerLabel: '24 hours before a visit',
+    actionType: 'owner_reminder',
+    actionLabel: 'Owner reminder',
+    delayMinutes: 1440,
+    enabled: false,
+    requiresIntegration: false,
+    updatedAt: new Date().toISOString(),
+  },
 ]
 
 export const createMockAutomationEvents = (): AutomationEvent[] => {
