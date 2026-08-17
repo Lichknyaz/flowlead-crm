@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLeads } from '../context/LeadDataContext'
 import { useNotifications } from '../context/NotificationContext'
@@ -11,6 +11,7 @@ export function DashboardHeaderTools() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const notificationsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -27,6 +28,19 @@ export function DashboardHeaderTools() {
     window.addEventListener('keydown', handleShortcut)
     return () => window.removeEventListener('keydown', handleShortcut)
   }, [])
+
+  useEffect(() => {
+    if (!notificationsOpen) return
+
+    const closeOutside = (event: PointerEvent) => {
+      if (!notificationsRef.current?.contains(event.target as Node)) {
+        setNotificationsOpen(false)
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOutside)
+    return () => document.removeEventListener('pointerdown', closeOutside)
+  }, [notificationsOpen])
 
   const results = useMemo(() => {
     const value = query.trim().toLowerCase()
@@ -101,7 +115,7 @@ export function DashboardHeaderTools() {
           </div>
         )}
       </div>
-      <div className="header-tool">
+      <div className="header-tool" ref={notificationsRef}>
         <button
           className="icon-button"
           onClick={() => {

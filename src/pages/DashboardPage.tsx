@@ -18,11 +18,9 @@ import { MetricCard } from '../components/MetricCard'
 import { TaskPanel } from '../components/TaskPanel'
 import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
+import { periodStartKey, pragueDateKey } from '../utils/leadDate'
 
 type PipelinePeriod = 'week' | 'month' | 'all'
-
-const pragueDate = (value: string | Date) =>
-  new Date(value).toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' })
 
 export function DashboardPage() {
   const { leads, dataMode, refreshLeads } = useLeads()
@@ -30,20 +28,12 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const [period, setPeriod] = useState<PipelinePeriod>('week')
   const count = (status: string) => leads.filter((lead) => lead.status === status).length
-  const todayKey = pragueDate(new Date())
-  const today = leads.filter((lead) => pragueDate(lead.createdAt) === todayKey).length
+  const todayKey = pragueDateKey(new Date())
+  const today = leads.filter((lead) => pragueDateKey(lead.createdAt) === todayKey).length
   const pipelineLeads = useMemo(() => {
     if (period === 'all') return leads
-    const now = new Date()
-    const start = new Date(now)
-    if (period === 'week') {
-      const daysFromMonday = (now.getDay() + 6) % 7
-      start.setDate(now.getDate() - daysFromMonday)
-    } else {
-      start.setDate(1)
-    }
-    start.setHours(0, 0, 0, 0)
-    return leads.filter((lead) => new Date(lead.createdAt) >= start)
+    const startKey = periodStartKey(period)
+    return leads.filter((lead) => pragueDateKey(lead.createdAt) >= startKey)
   }, [leads, period])
   const pipelineCount = (status: string) =>
     pipelineLeads.filter((lead) => lead.status === status).length
@@ -57,7 +47,7 @@ export function DashboardPage() {
             : "You're viewing a local demo workspace. Try updating a lead."}
         </span>
         <button onClick={openLeadModal}>
-          Add a lead <ArrowRight size={16} />
+          Add lead <ArrowRight size={16} />
         </button>
       </div>
       <section className="metrics-grid">
@@ -148,13 +138,13 @@ export function DashboardPage() {
           <header>
             <div>
               <h2>Recent leads</h2>
-              <p>Latest incoming service requests</p>
+              <p>Latest incoming service requests · Newest first</p>
             </div>
             <Link to="/dashboard/leads">
               View all <ArrowRight size={16} />
             </Link>
           </header>
-          <LeadTable leads={leads.slice(0, 5)} compact />
+          <LeadTable leads={leads} compact limit={5} />
         </article>
         <article className="panel pipeline-panel">
           <header>
@@ -212,7 +202,7 @@ export function DashboardPage() {
                 <Plus />
               </span>
               <span>
-                <strong>Add a new lead</strong>
+                <strong>Add lead</strong>
                 <small>Create a request manually</small>
               </span>
               <ArrowRight />

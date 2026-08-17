@@ -16,6 +16,7 @@ import { LeadKanban } from '../components/LeadKanban'
 import { useCrmUi } from '../context/CrmUiContext'
 import { useLeads } from '../context/LeadDataContext'
 import { createLeadsCsvHref } from '../utils/leadExport'
+import { pragueDateKey } from '../utils/leadDate'
 import { leadStatuses, type LeadStatus, type Urgency } from '../types/lead'
 
 type LeadView = 'all' | 'mine' | 'unassigned'
@@ -54,7 +55,7 @@ export function LeadsPage() {
       leads.filter((lead) => {
         const text =
           `${lead.clientName} ${lead.serviceType} ${lead.location} ${lead.id} ${lead.phone} ${lead.email}`.toLowerCase()
-        const createdDate = lead.createdAt.slice(0, 10)
+        const createdDate = pragueDateKey(lead.createdAt)
         const matchesView =
           view === 'all' ||
           (view === 'mine' && lead.assignedUser !== 'Unassigned') ||

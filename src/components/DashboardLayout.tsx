@@ -131,7 +131,7 @@ export function DashboardLayout() {
           <div className="header-actions">
             <DashboardHeaderTools />
             <button className="button button-primary button-small" onClick={openLeadModal}>
-              <Plus size={17} /> New lead
+              <Plus size={17} /> Add lead
             </button>
           </div>
         </header>

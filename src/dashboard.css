@@ -553,6 +553,34 @@
   text-align: left;
   padding: 9px 12px;
 }
+.table-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.table-sort svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.55;
+}
+.table-sort:hover,
+.table-sort.active {
+  color: #475467;
+}
+.table-sort.active svg {
+  color: #2563eb;
+  opacity: 1;
+}
 .lead-table td {
   padding: 10px 12px;
   border-top: 1px solid #f0f1f3;
