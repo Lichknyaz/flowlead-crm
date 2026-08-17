@@ -53,6 +53,18 @@
   font-size: 9px;
   margin: 4px 0 0;
 }
+.automation-schedule-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+  color: #7485a3;
+  font-size: 10px;
+}
+.automation-schedule-status svg {
+  width: 12px;
+  color: #2d67f6;
+}
 .automation-heading svg {
   width: 15px;
 }
