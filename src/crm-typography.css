@@ -32,6 +32,38 @@
   font-size: 14px;
 }
 
+.header-actions {
+  flex-shrink: 0;
+}
+
+.search-button {
+  box-sizing: border-box;
+  width: 230px;
+  height: 40px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.search-button > span {
+  white-space: nowrap;
+}
+
+.search-button kbd {
+  flex: 0 0 auto;
+  min-width: 52px;
+  white-space: nowrap;
+}
+
+.header-actions .icon-button {
+  width: 40px;
+  height: 40px;
+}
+
+.header-actions > .button {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
 .workspace-pill strong,
 .user-card strong,
 .demo-mode > span {
@@ -270,6 +302,12 @@
 
 .demo-mode button {
   font-size: 12px;
+}
+
+@media (max-width: 1250px) {
+  .search-button {
+    display: none;
+  }
 }
 
 @media (max-width: 700px) {
