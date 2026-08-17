@@ -108,8 +108,11 @@ export async function testRemoteAutomationRule(id: string) {
 
 export async function testRemoteTelegramRule(id: string) {
   if (!supabase) throw new Error('Supabase is not configured')
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError || !sessionData.session) throw new Error('Authentication is required')
   const { data, error } = await supabase.functions.invoke('notify-new-lead', {
     body: { testRuleId: id },
+    headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
   })
   if (error) throw error
   if (!data?.event) throw new Error('Telegram test did not return a delivery event')
@@ -118,8 +121,11 @@ export async function testRemoteTelegramRule(id: string) {
 
 export async function retryRemoteAutomationEvent(id: string) {
   if (!supabase) throw new Error('Supabase is not configured')
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+  if (sessionError || !sessionData.session) throw new Error('Authentication is required')
   const { data, error } = await supabase.functions.invoke('notify-new-lead', {
     body: { eventId: id },
+    headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
   })
   if (error) throw error
   if (!data?.event) throw new Error('Telegram retry did not return a delivery event')

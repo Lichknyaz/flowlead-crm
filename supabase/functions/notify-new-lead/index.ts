@@ -40,6 +40,15 @@ interface LeadSummary {
 const response = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: jsonHeaders })
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) return error.message
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message) return message
+  }
+  return String(error)
+}
+
 const getBearerToken = (request: Request) => {
   const authorization = request.headers.get('Authorization') ?? ''
   return authorization.startsWith('Bearer ') ? authorization.slice(7) : ''
@@ -62,10 +71,13 @@ Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   if (request.method !== 'POST') return response({ error: 'Method not allowed' }, 405)
 
-  const admin = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-  )
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  if (!supabaseUrl || !serviceRoleKey) {
+    return response({ error: 'Supabase runtime secrets are not configured' }, 500)
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey)
 
   let event: AutomationEventRow | null = null
 
@@ -255,7 +267,7 @@ Deno.serve(async (request) => {
 
     return response({ delivered: true, event: publicEvent(deliveredEvent as AutomationEventRow) })
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
+    const message = getErrorMessage(error)
     let failedEvent: AutomationEventRow | null = null
     if (event) {
       const { data } = await admin
