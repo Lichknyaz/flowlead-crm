@@ -225,7 +225,7 @@ export function DashboardPage() {
               </span>
               <span>
                 <strong>View automations</strong>
-                <small>3 workflows active</small>
+                <small>Manage workflow rules</small>
               </span>
               <ArrowRight />
             </Link>
