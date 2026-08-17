@@ -1,24 +1,94 @@
-import { CheckCircle2, ChevronRight, Eye, MessageCircle, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  CheckCircle2,
+  ChevronRight,
+  Eye,
+  MessageCircle,
+  MoreHorizontal,
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StatusBadge, UrgencyBadge } from './StatusBadge'
 import type { Lead } from '../types/lead'
 import { useLeads } from '../context/LeadDataContext'
+import { formatLeadReceivedAt, formatLeadReceivedTitle } from '../utils/leadDate'
 
-const relativeDate = (value: string) => {
-  const date = new Date(value)
-  const localDay = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' })
-  if (localDay === '2026-07-22')
-    return `Today, ${date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' })}`
-  if (localDay === '2026-07-21') return 'Yesterday'
-  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+type SortKey = 'clientName' | 'serviceType' | 'location' | 'status' | 'urgency' | 'createdAt'
+type SortDirection = 'asc' | 'desc'
+
+const statusOrder: Lead['status'][] = [
+  'new',
+  'contacted',
+  'booked',
+  'in progress',
+  'completed',
+  'lost',
+]
+const urgencyOrder: Lead['urgency'][] = ['Standard', 'Soon', 'Urgent']
+
+const compareText = (left: string, right: string) =>
+  left.localeCompare(right, 'en', { sensitivity: 'base', numeric: true })
+
+interface LeadTableProps {
+  leads: Lead[]
+  compact?: boolean
+  limit?: number
 }
 
-export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?: boolean }) {
+export function LeadTable({ leads, compact = false, limit }: LeadTableProps) {
   const navigate = useNavigate()
   const { updateLead } = useLeads()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [sortKey, setSortKey] = useState<SortKey>('createdAt')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  const sortedLeads = useMemo(() => {
+    const direction = sortDirection === 'asc' ? 1 : -1
+    const sorted = [...leads].sort((left, right) => {
+      if (sortKey === 'createdAt') {
+        return (Date.parse(left.createdAt) - Date.parse(right.createdAt)) * direction
+      }
+      if (sortKey === 'status') {
+        return (statusOrder.indexOf(left.status) - statusOrder.indexOf(right.status)) * direction
+      }
+      if (sortKey === 'urgency') {
+        return (
+          (urgencyOrder.indexOf(left.urgency) - urgencyOrder.indexOf(right.urgency)) * direction
+        )
+      }
+      return compareText(left[sortKey], right[sortKey]) * direction
+    })
+    return typeof limit === 'number' ? sorted.slice(0, limit) : sorted
+  }, [leads, limit, sortDirection, sortKey])
+
+  const changeSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'))
+      return
+    }
+    setSortKey(key)
+    setSortDirection(key === 'createdAt' ? 'desc' : 'asc')
+  }
+
+  const sortButton = (key: SortKey, label: string) => {
+    const active = sortKey === key
+    const Icon = active ? (sortDirection === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown
+    return (
+      <button
+        className={active ? 'table-sort active' : 'table-sort'}
+        onClick={() => changeSort(key)}
+        aria-label={`Sort by ${label}`}
+      >
+        {label} <Icon />
+      </button>
+    )
+  }
+
+  const ariaSort = (key: SortKey): 'ascending' | 'descending' | 'none' =>
+    sortKey === key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'
 
   const changeStatus = async (lead: Lead, status: 'contacted' | 'completed') => {
     setUpdating(lead.id)
@@ -37,17 +107,19 @@ export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?:
       <table className="lead-table">
         <thead>
           <tr>
-            <th>Client</th>
-            <th>Service</th>
-            {!compact && <th>Location</th>}
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Received</th>
+            <th aria-sort={ariaSort('clientName')}>{sortButton('clientName', 'Client')}</th>
+            <th aria-sort={ariaSort('serviceType')}>{sortButton('serviceType', 'Service')}</th>
+            {!compact && (
+              <th aria-sort={ariaSort('location')}>{sortButton('location', 'Location')}</th>
+            )}
+            <th aria-sort={ariaSort('status')}>{sortButton('status', 'Status')}</th>
+            <th aria-sort={ariaSort('urgency')}>{sortButton('urgency', 'Priority')}</th>
+            <th aria-sort={ariaSort('createdAt')}>{sortButton('createdAt', 'Received')}</th>
             <th />
           </tr>
         </thead>
         <tbody>
-          {leads.map((lead) => (
+          {sortedLeads.map((lead) => (
             <tr key={lead.id} onClick={() => navigate(`/dashboard/leads/${lead.id}`)}>
               <td>
                 <div className="client-cell">
@@ -74,7 +146,9 @@ export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?:
               <td>
                 <UrgencyBadge urgency={lead.urgency} />
               </td>
-              <td>{relativeDate(lead.createdAt)}</td>
+              <td title={formatLeadReceivedTitle(lead.createdAt)}>
+                {formatLeadReceivedAt(lead.createdAt)}
+              </td>
               <td>
                 <div className="row-action-wrap">
                   <button
@@ -118,7 +192,7 @@ export function LeadTable({ leads, compact = false }: { leads: Lead[]; compact?:
           ))}
         </tbody>
       </table>
-      {leads.length === 0 && <div className="empty-state">No leads match these filters.</div>}
+      {sortedLeads.length === 0 && <div className="empty-state">No leads match these filters.</div>}
     </div>
   )
 }

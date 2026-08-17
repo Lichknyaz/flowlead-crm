@@ -109,7 +109,7 @@ export function NewLeadModal({
               <UserRound />
             </span>
             <div>
-              <h2 id="new-lead-title">Add a new lead</h2>
+              <h2 id="new-lead-title">Add lead</h2>
               <p>Create a request without leaving the CRM workspace.</p>
             </div>
           </div>
@@ -231,7 +231,7 @@ export function NewLeadModal({
               Cancel
             </button>
             <button className="button button-primary" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating lead…' : 'Create lead'}
+              {isSubmitting ? 'Adding lead…' : 'Add lead'}
             </button>
           </footer>
         </form>
