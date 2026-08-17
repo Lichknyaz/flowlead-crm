@@ -1,4 +1,12 @@
-import { AlertTriangle, CheckCircle2, Download, Target, TrendingUp, Users } from 'lucide-react'
+import {
+  AlertTriangle,
+  Banknote,
+  CheckCircle2,
+  Download,
+  Target,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useLeads } from '../context/LeadDataContext'
 import { leadStatuses, type Lead, type LeadStatus, type Urgency } from '../types/lead'
@@ -20,6 +28,12 @@ const urgencyColors: Record<Urgency, string> = {
   Urgent: '#f04438',
 }
 
+const currency = new Intl.NumberFormat('cs-CZ', {
+  style: 'currency',
+  currency: 'CZK',
+  maximumFractionDigits: 0,
+})
+
 const pragueDateKey = (value: Date) =>
   value.toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' })
 
@@ -35,6 +49,8 @@ const createReportCsvHref = (leads: Lead[], label: string) => {
     ['Active leads', leads.filter((lead) => !['completed', 'lost'].includes(lead.status)).length],
     ['Completed jobs', completed],
     ['Win rate', closed ? `${Math.round((completed / closed) * 100)}%` : '0%'],
+    ['Pipeline value', leads.reduce((sum, lead) => sum + lead.estimatedValue, 0)],
+    ['Recorded revenue', leads.reduce((sum, lead) => sum + lead.finalValue, 0)],
     [],
   ]
   const rows = leads.map((lead) => [
@@ -46,10 +62,23 @@ const createReportCsvHref = (leads: Lead[], label: string) => {
     lead.status,
     lead.assignedUser,
     lead.location,
+    lead.estimatedValue,
+    lead.finalValue,
   ])
   const csv = [
     ...summary,
-    ['Reference', 'Created', 'Client', 'Service', 'Urgency', 'Status', 'Assigned to', 'Location'],
+    [
+      'Reference',
+      'Created',
+      'Client',
+      'Service',
+      'Urgency',
+      'Status',
+      'Assigned to',
+      'Location',
+      'Estimate CZK',
+      'Final CZK',
+    ],
     ...rows,
   ]
     .map((row) => row.map((value) => csvCell(value ?? '')).join(','))
@@ -83,6 +112,10 @@ export function ReportsPage() {
     const active = filtered.length - closed
     const urgent = filtered.filter((lead) => lead.urgency === 'Urgent').length
     const unassigned = filtered.filter((lead) => lead.assignedUser === 'Unassigned').length
+    const pipelineValue = filtered
+      .filter((lead) => !['completed', 'lost'].includes(lead.status))
+      .reduce((sum, lead) => sum + lead.estimatedValue, 0)
+    const revenue = filtered.reduce((sum, lead) => sum + lead.finalValue, 0)
 
     const services = [...new Set(filtered.map((lead) => lead.serviceType))]
       .map((name) => {
@@ -132,6 +165,8 @@ export function ReportsPage() {
       active,
       urgent,
       unassigned,
+      pipelineValue,
+      revenue,
       services,
       urgency,
       team,
@@ -215,6 +250,14 @@ export function ReportsPage() {
           <small>Unassigned</small>
           <strong>{report.unassigned}</strong>
           <p>{report.unassigned ? 'Needs team attention' : 'All leads covered'}</p>
+        </article>
+        <article>
+          <span className="report-icon money">
+            <Banknote />
+          </span>
+          <small>Recorded revenue</small>
+          <strong>{currency.format(report.revenue)}</strong>
+          <p>{currency.format(report.pipelineValue)} open pipeline</p>
         </article>
       </section>
 

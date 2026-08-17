@@ -24,6 +24,8 @@ export const mockLeads: Lead[] = [
     status: 'new',
     notes: '',
     assignedUser: 'Unassigned',
+    estimatedValue: 4200,
+    finalValue: 0,
     timeline: [
       event('e1', 'Request received', 'Website form submitted', 'Today, 10:42', 'blue'),
       event(
@@ -49,6 +51,8 @@ export const mockLeads: Lead[] = [
     status: 'contacted',
     notes: 'Called at 09:30. Photos received by email.',
     assignedUser: 'Jakub M.',
+    estimatedValue: 3500,
+    finalValue: 0,
     timeline: [
       event('e3', 'Request received', 'Website form submitted', 'Today, 09:18', 'blue'),
       event('e4', 'Client contacted', 'Status updated by Jakub M.', 'Today, 09:34', 'green'),
@@ -68,6 +72,8 @@ export const mockLeads: Lead[] = [
     status: 'booked',
     notes: 'Booked for Friday, 14:00. Building parking is available.',
     assignedUser: 'Tomáš K.',
+    estimatedValue: 6200,
+    finalValue: 0,
     timeline: [
       event('e5', 'Request received', 'Website form submitted', 'Yesterday, 16:25', 'blue'),
       event('e6', 'Visit booked', 'Friday at 14:00', 'Yesterday, 17:10', 'green'),
@@ -87,6 +93,8 @@ export const mockLeads: Lead[] = [
     status: 'in progress',
     notes: 'Technician on site. Replacement outlet may be required.',
     assignedUser: 'Jakub M.',
+    estimatedValue: 4800,
+    finalValue: 0,
     timeline: [
       event('e7', 'Request received', 'Website form submitted', 'Yesterday, 11:06', 'blue'),
       event('e8', 'Work started', 'Technician checked in on site', 'Yesterday, 13:20', 'amber'),
@@ -106,6 +114,8 @@ export const mockLeads: Lead[] = [
     status: 'completed',
     notes: 'Completed. Invoice sent and paid.',
     assignedUser: 'Tomáš K.',
+    estimatedValue: 14500,
+    finalValue: 15200,
     timeline: [
       event('e9', 'Request received', 'Website form submitted', '19 Jul, 13:30', 'blue'),
       event('e10', 'Job completed', 'Invoice PHF-229 issued', '20 Jul, 17:45', 'green'),
@@ -125,6 +135,8 @@ export const mockLeads: Lead[] = [
     status: 'lost',
     notes: 'Client found an emergency locksmith before callback.',
     assignedUser: 'Jakub M.',
+    estimatedValue: 2800,
+    finalValue: 0,
     timeline: [
       event('e11', 'Request received', 'Website form submitted', '18 Jul, 15:40', 'blue'),
       event('e12', 'Lead closed', 'Client no longer needs service', '18 Jul, 16:35', 'gray'),

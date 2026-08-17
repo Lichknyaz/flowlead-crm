@@ -24,6 +24,7 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 - `/dashboard/leads/:id` — status, notes, assignment, timeline, and demo AI summary
 - `/dashboard/automation` — workflow concept and automation events
 - `/dashboard/reports` — pipeline, service, urgency, and workload analytics
+- `/dashboard/calendar` — monthly visit planning and upcoming appointments
 
 ## Stack
 

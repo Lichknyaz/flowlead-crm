@@ -9,6 +9,7 @@ import { LeadsPage } from './pages/LeadsPage'
 import { LeadDetailPage } from './pages/LeadDetailPage'
 import { AutomationPage } from './pages/AutomationPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { CalendarPage } from './pages/CalendarPage'
 import { DashboardGuard } from './components/DashboardGuard'
 import { CrmUiProvider } from './context/CrmUiContext'
 
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="leads/:id" element={<LeadDetailPage />} />
           <Route path="automation" element={<AutomationPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
