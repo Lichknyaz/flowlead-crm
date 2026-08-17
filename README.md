@@ -11,7 +11,10 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 - Realtime subscriptions keep lead changes and persistent in-app notifications synchronized.
 - The same build supports a zero-configuration local demo and an optional production data layer.
 - Supabase adds PostgreSQL persistence, protected staff access, row-level security, and a safe public request endpoint.
-- An optional Edge Function can deliver new-lead notifications to Telegram.
+- A deployed Edge Function delivers privacy-reduced new-lead notifications to Telegram.
+
+Detailed implementation status and the ordered automation plan are tracked in
+[`docs/automation-status.md`](docs/automation-status.md).
 
 ## Main routes
 
@@ -90,7 +93,7 @@ Deploy `supabase/functions/notify-new-lead`, then add these function secrets in 
 - `TELEGRAM_CHAT_ID`
 - `AUTOMATION_WEBHOOK_SECRET` (a long random value used only between the database webhook and Edge Function)
 
-Apply `supabase/migrations/202608170003_telegram_delivery.sql` and `supabase/migrations/202608170004_direct_telegram_dispatch.sql`. The second migration uses `pg_net` directly, so it does not depend on the Dashboard Database Webhooks service.
+Apply `supabase/migrations/202608170003_telegram_delivery.sql`, `supabase/migrations/202608170004_direct_telegram_dispatch.sql`, and `supabase/migrations/202608170005_service_role_telegram_permissions.sql`. The direct-dispatch migration uses `pg_net`, so it does not depend on the Dashboard Database Webhooks service. The final migration gives the Edge Function's service role only the table access required for Telegram delivery and retries.
 
 Store two database secrets in Supabase Vault:
 
@@ -106,10 +109,12 @@ Telegram receives only the lead reference, service type, and urgency. Names, con
 Automation is being delivered in small, auditable stages:
 
 1. **Foundation — implemented:** owner-scoped workflow rules, persistent execution history, realtime updates, rule testing, new-lead and status-change events, and on-demand response-reminder checks.
-2. **External delivery — in progress:** Telegram delivery is implemented with a signed `pg_net` dispatch, rule checks, persistent status, idempotent queuing, test delivery, and manual retry. Client confirmation email is next.
-3. **Scheduling:** run overdue-response and upcoming-appointment checks automatically with Supabase Cron instead of the manual **Run due checks** action.
-4. **Workflow builder:** create custom trigger, delay, condition, action, and message-template combinations from the CRM.
-5. **Production controls:** retry policy, idempotency, rate limits, integration health, and alerting for failed runs.
+2. **External delivery — implemented:** Telegram delivery uses signed `pg_net` dispatch, rule checks, persistent status, idempotent queuing, test delivery, and manual retry. Both a live lead and the CRM **Test** action have been verified in production.
+3. **Scheduling — next:** run overdue-response and upcoming-appointment checks automatically with Supabase Cron instead of relying on the manual **Run due checks** action. Add stale-pending reconciliation and bounded retries at the same time.
+4. **Client communication:** send a transactional confirmation email after a request is accepted, with delivery status recorded in the same event log.
+5. **Appointment reminders:** notify the team and optionally the client before scheduled visits, using Prague-local time and deduplicated delivery.
+6. **Workflow builder:** create custom trigger, delay, condition, action, and message-template combinations from the CRM.
+7. **Production controls:** rate limits, integration health, failure alerts, retention controls, and monitoring.
 
 Apply `supabase/migrations/202608170002_automation_foundation.sql` before opening the live Automation page. The migration creates rules separately for each authenticated owner and keeps rule and event access scoped to that account.
 
