@@ -9,10 +9,16 @@ export function PublicHeader() {
     <header className="public-header">
       <div className="public-nav container">
         <Brand />
-        <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+        <button
+          className="mobile-menu"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+          aria-controls="public-navigation"
+          aria-expanded={open}
+        >
           {open ? <X /> : <Menu />}
         </button>
-        <nav className={open ? 'open' : ''}>
+        <nav id="public-navigation" aria-label="Primary navigation" className={open ? 'open' : ''}>
           <a href="/#services">Services</a>
           <a href="/#process">How it works</a>
           <a href="/#reviews">Reviews</a>

@@ -91,7 +91,7 @@ export function LandingPage() {
                 </span>
               </div>
             </div>
-            <div className="hero-visual" aria-label="Home repair service overview">
+            <div className="hero-visual" role="img" aria-label="Home repair service overview">
               <div className="house-scene">
                 <div className="house-roof" />
                 <div className="house-body">
