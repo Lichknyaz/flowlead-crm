@@ -1,17 +1,10 @@
 const duration = 420
 
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 const easeInOutCubic = (progress: number) =>
   progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2
 
 export function scrollToY(top: number) {
   const target = Math.max(0, top)
-
-  if (prefersReducedMotion()) {
-    window.scrollTo({ top: target, behavior: 'auto' })
-    return
-  }
 
   const start = window.scrollY
   const distance = target - start

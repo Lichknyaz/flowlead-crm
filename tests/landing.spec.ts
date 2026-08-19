@@ -56,10 +56,20 @@ test.describe('public landing page', () => {
 
     await page.getByRole('link', { name: 'Services' }).click()
     await expect(page).toHaveURL(/#services$/)
+    await page.waitForTimeout(100)
+    const sectionTop = await page.locator('#services').evaluate((section) => {
+      return section.getBoundingClientRect().top + window.scrollY
+    })
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(sectionTop - 5)
     await expect(page.locator('#services')).toBeInViewport()
     await expect(page.getByRole('button', { name: 'Return to top' })).toBeVisible()
 
+    const positionBeforeReturn = await page.evaluate(() => window.scrollY)
     await page.getByRole('button', { name: 'Return to top' }).click()
+    await page.waitForTimeout(100)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(positionBeforeReturn)
     await expect.poll(() => page.evaluate(() => window.scrollY < 20)).toBe(true)
   })
 })
