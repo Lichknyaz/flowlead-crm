@@ -21,6 +21,8 @@ Detailed implementation status and the ordered automation plan are tracked in
 The production demo is available at [flowlead-crm-eight.vercel.app](https://flowlead-crm-eight.vercel.app).
 For a concise, repeatable presentation route, use the [three-minute demo script](docs/demo-script.md).
 It calls out which records are fictional and keeps the demonstration focused on the working customer-to-CRM flow.
+For a portfolio-ready overview of scope, implementation decisions, and validation, see the
+[case study](docs/portfolio-case-study.md).
 
 ## Main routes
 
