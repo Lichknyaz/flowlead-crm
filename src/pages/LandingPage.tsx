@@ -17,7 +17,9 @@ import {
   Star,
   Wrench,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { BackToTopButton } from '../components/BackToTopButton'
 import { PublicHeader } from '../components/PublicHeader'
 
 const services = [
@@ -48,6 +50,19 @@ const services = [
 ]
 
 export function LandingPage() {
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+
+    const sectionId = hash.slice(1)
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [hash])
+
   return (
     <div className="public-page">
       <PublicHeader />
@@ -304,6 +319,7 @@ export function LandingPage() {
           © 2026 Prague HomeFix · Fictional business for portfolio demonstration
         </p>
       </footer>
+      <BackToTopButton />
     </div>
   )
 }

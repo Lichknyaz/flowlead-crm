@@ -19,9 +19,15 @@ export function PublicHeader() {
           {open ? <X /> : <Menu />}
         </button>
         <nav id="public-navigation" aria-label="Primary navigation" className={open ? 'open' : ''}>
-          <a href="/#services">Services</a>
-          <a href="/#process">How it works</a>
-          <a href="/#reviews">Reviews</a>
+          <Link to="/#services" onClick={() => setOpen(false)}>
+            Services
+          </Link>
+          <Link to="/#process" onClick={() => setOpen(false)}>
+            How it works
+          </Link>
+          <Link to="/#reviews" onClick={() => setOpen(false)}>
+            Reviews
+          </Link>
           <Link className="nav-demo" to="/demo">
             CRM demo
           </Link>
