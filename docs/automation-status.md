@@ -1,6 +1,6 @@
 # Automation implementation status
 
-Last updated: 2026-08-17
+Last updated: 2026-08-19
 
 ## Current state
 
@@ -37,27 +37,29 @@ Relevant migrations:
 - `202608170003_telegram_delivery.sql`
 - `202608170004_direct_telegram_dispatch.sql`
 - `202608170005_service_role_telegram_permissions.sql`
+- `202608170006_scheduled_automation_recovery.sql`
 
-## Next milestone: scheduled operational automations
+## Scheduled operational automations
 
-The next implementation stage should make existing reminders run automatically and make external delivery resilient.
+The scheduler and safe Telegram-recovery baseline are deployed in production.
 
-### 1. Schedule due checks
+- Supabase Cron runs `public.run_scheduled_automations()` every five minutes.
+- Response and appointment reminders have idempotency keys, so a record is not eligible for the same reminder twice.
+- The CRM exposes **Run checks now** as a manual fallback and displays the automatic schedule.
+- The **Appointment reminder** rule is available with a 24-hour window and is disabled by default.
+- Telegram events that never started can be recovered once; events with an unknown previous delivery result become actionable failures rather than being sent blindly again.
 
-- Run response-reminder checks every five minutes with Supabase Cron.
-- Run upcoming-appointment checks on a separate schedule.
-- Store all schedule calculations in UTC and render them in the workspace's Prague time zone.
-- Keep the existing **Run due checks** action as a safe manual fallback.
+### Production scenario verification
 
-### 2. Add delivery recovery
+The following synthetic checks passed on 2026-08-19. No real customer data was used.
 
-- Detect Telegram events that remain `pending` beyond a reasonable timeout.
-- Retry temporary failures with a small bounded backoff policy.
-- Never retry permanent configuration or authentication failures indefinitely.
-- Preserve one idempotency key per lead, rule, and delivery window.
-- Show the last attempt, attempt count, and actionable error in the CRM.
+1. The scheduler job was present and active on `*/5 * * * *`.
+2. A synthetic new lead, made overdue with a ten-year reminder window, produced exactly one response-reminder event and one private in-app notification.
+3. A synthetic scheduled visit in the next minute produced exactly one appointment-reminder event and one private in-app notification.
+4. The test lead and visit were deleted after verification.
+5. Rule settings were restored: response reminder disabled at 30 minutes, appointment reminder disabled at 1,440 minutes, and Telegram enabled.
 
-### 3. Add client confirmation email
+## Next milestone: client confirmation email
 
 - Select a transactional provider and verified sender domain.
 - Send a short confirmation containing the request reference and expected next step.
@@ -67,13 +69,6 @@ The next implementation stage should make existing reminders run automatically a
 
 User input required before this step: email provider, sender domain, sender address, and reply-to address.
 
-### 4. Add appointment reminders
-
-- Notify the service team before the scheduled visit.
-- Optionally notify the client after the email channel is verified.
-- Deduplicate reminders when an appointment is edited or rescheduled.
-- Cancel obsolete reminders when the appointment is cancelled or completed.
-
 ## Later stages
 
 - Integration-health card and failure notifications.
@@ -82,13 +77,6 @@ User input required before this step: email provider, sender domain, sender addr
 - Multiple staff accounts and role-based ownership.
 - Monitoring, retention controls, backups, and a production privacy policy.
 
-## Definition of done for the next milestone
+## Remaining scheduler follow-up
 
-The scheduling milestone is complete only when:
-
-- due checks run without an open browser;
-- repeated scheduler calls do not create duplicate events;
-- a deliberately overdue synthetic lead creates exactly one reminder;
-- a failed delivery can recover or stop with an actionable terminal error;
-- the result is visible in the CRM event history;
-- migrations, documentation, CI, and the production deployment are all verified.
+The core scenarios are verified. A later hardening pass can additionally wait for an unattended Cron tick and run each synthetic condition twice to document the no-duplicate outcome under repeated execution.
