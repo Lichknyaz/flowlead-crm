@@ -21,6 +21,7 @@ import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BackToTopButton } from '../components/BackToTopButton'
 import { PublicHeader } from '../components/PublicHeader'
+import { scrollToSection } from '../utils/smoothScroll'
 
 const services = [
   {
@@ -57,7 +58,7 @@ export function LandingPage() {
 
     const sectionId = hash.slice(1)
     const frame = window.requestAnimationFrame(() => {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      scrollToSection(sectionId)
     })
 
     return () => window.cancelAnimationFrame(frame)

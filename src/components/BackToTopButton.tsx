@@ -1,5 +1,6 @@
 import { ArrowUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { scrollToY } from '../utils/smoothScroll'
 
 const visibilityOffset = 420
 
@@ -21,7 +22,7 @@ export function BackToTopButton() {
       className="back-to-top"
       type="button"
       aria-label="Return to top"
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={() => scrollToY(0)}
     >
       <ArrowUp size={20} />
     </button>
