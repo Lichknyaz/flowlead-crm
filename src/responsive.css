@@ -429,7 +429,11 @@
     grid-template-columns: 1fr;
   }
   .hero-copy {
+    min-width: 0;
     padding-bottom: 20px;
+  }
+  .hero-copy > p {
+    width: auto;
   }
   .hero-visual {
     height: 420px;

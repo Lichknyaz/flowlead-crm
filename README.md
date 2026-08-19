@@ -46,9 +46,10 @@ Build verification:
 npm run format:check
 npm run lint
 npm run build
+npm run test:e2e
 ```
 
-GitHub Actions runs all three checks for pushes and pull requests.
+The Playwright suite checks the public landing page in desktop and mobile Chromium viewports, including the primary CTA, desktop navigation, mobile menu, and visible hero copy. GitHub Actions runs formatting, lint, and build checks for pushes and pull requests.
 
 ## Code formatting
 
@@ -110,9 +111,9 @@ Automation is being delivered in small, auditable stages:
 
 1. **Foundation — implemented:** owner-scoped workflow rules, persistent execution history, realtime updates, rule testing, new-lead and status-change events, and on-demand response-reminder checks.
 2. **External delivery — implemented:** Telegram delivery uses signed `pg_net` dispatch, rule checks, persistent status, idempotent queuing, test delivery, and manual retry. Both a live lead and the CRM **Test** action have been verified in production.
-3. **Scheduling — next:** run overdue-response and upcoming-appointment checks automatically with Supabase Cron instead of relying on the manual **Run due checks** action. Add stale-pending reconciliation and bounded retries at the same time.
+3. **Scheduling — implemented:** Supabase Cron runs due checks every five minutes. Response and appointment reminders are idempotent, Telegram recovery is bounded, and **Run checks now** remains available as a manual fallback.
 4. **Client communication:** send a transactional confirmation email after a request is accepted, with delivery status recorded in the same event log.
-5. **Appointment reminders:** notify the team and optionally the client before scheduled visits, using Prague-local time and deduplicated delivery.
+5. **Appointment reminders — team workflow implemented:** a disabled-by-default 24-hour team reminder is available; optional client reminders belong after email delivery is configured.
 6. **Workflow builder:** create custom trigger, delay, condition, action, and message-template combinations from the CRM.
 7. **Production controls:** rate limits, integration health, failure alerts, retention controls, and monitoring.
 
