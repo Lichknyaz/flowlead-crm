@@ -16,6 +16,12 @@ FlowLead CRM is an interactive portfolio demo for a fictional Prague home repair
 Detailed implementation status and the ordered automation plan are tracked in
 [`docs/automation-status.md`](docs/automation-status.md).
 
+## Portfolio demo
+
+The production demo is available at [flowlead-crm-eight.vercel.app](https://flowlead-crm-eight.vercel.app).
+For a concise, repeatable presentation route, use the [three-minute demo script](docs/demo-script.md).
+It calls out which records are fictional and keeps the demonstration focused on the working customer-to-CRM flow.
+
 ## Main routes
 
 - `/` — Prague HomeFix landing page

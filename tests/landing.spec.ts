@@ -6,6 +6,7 @@ test.describe('public landing page', () => {
 
     await expect(page).toHaveTitle(/FlowLead CRM — Prague HomeFix/)
     await expect(page.getByRole('heading', { name: /Your home, fixed/i })).toBeVisible()
+    await expect(page.getByRole('img', { name: 'Home repair service overview' })).toBeVisible()
     await expect(page.getByRole('heading', { name: /One team for the jobs/i })).toBeVisible()
     await expect(
       page.getByRole('heading', { name: /A repair shouldn't create more work/i }),
@@ -53,7 +54,11 @@ test.describe('public landing page on mobile', () => {
     await page.goto('/')
 
     await page.getByRole('button', { name: 'Toggle menu' }).click()
-    const navigation = page.getByRole('navigation')
+    await expect(page.getByRole('button', { name: 'Toggle menu' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+    const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
     await expect(navigation.getByRole('link', { name: 'Request a repair' })).toBeVisible()
 
     await navigation.getByRole('link', { name: 'Request a repair' }).click()
