@@ -46,6 +46,22 @@ test.describe('public landing page', () => {
       )
       .toBe(true)
   })
+
+  test('smoothly navigates to sections and offers a return to the header', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Desktop navigation is used for this anchor interaction.')
+    await page.goto('/')
+
+    await page.getByRole('link', { name: 'Services' }).click()
+    await expect(page).toHaveURL(/#services$/)
+    await expect(page.locator('#services')).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Return to top' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Return to top' }).click()
+    await expect.poll(() => page.evaluate(() => window.scrollY < 20)).toBe(true)
+  })
 })
 
 test.describe('public landing page on mobile', () => {

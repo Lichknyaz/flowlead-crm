@@ -20,6 +20,11 @@
 html {
   scroll-behavior: smooth;
 }
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
 body {
   margin: 0;
   min-width: 320px;
@@ -202,6 +207,28 @@ svg {
   display: none;
   background: none;
   border: 0;
+}
+.back-to-top {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid #d0d5dd;
+  border-radius: 50%;
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 10px 28px rgba(16, 24, 40, 0.16);
+}
+.back-to-top:hover {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+  transform: translateY(-2px);
 }
 .hero {
   background: linear-gradient(140deg, #fbfcfe 0%, #f2f7ff 100%);

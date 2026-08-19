@@ -403,6 +403,12 @@
   }
 }
 @media (max-width: 850px) {
+  .back-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 42px;
+    height: 42px;
+  }
   .public-nav nav {
     display: none;
     position: absolute;
